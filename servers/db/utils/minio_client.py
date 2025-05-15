@@ -1,5 +1,6 @@
 from minio import Minio
 from minio.error import S3Error
+from datetime import timedelta
 import os
 from dotenv import load_dotenv
 
@@ -49,11 +50,12 @@ def delete_object(client: Minio, bucket_name: str, student_id: str, object_name:
     except S3Error as e:
         raise Exception(f"Failed to delete object: {str(e)}")
 
-def generate_presigned_url(client: Minio, bucket_name: str, student_id: str, object_name: str, expires: int = 3600):
+def generate_presigned_url(client: Minio, bucket_name: str, student_id: str, object_name: str):
     """Generate a presigned URL for an object with student ID prefix."""
     try:
+        
         prefixed_object_name = f"{student_id}/{object_name}"
-        url = client.presigned_get_object(bucket_name, prefixed_object_name, expires=expires)
+        url = client.presigned_get_object(bucket_name, prefixed_object_name, expires=timedelta(days=7))
         return {"url": url}
     except S3Error as e:
         raise Exception(f"Failed to generate presigned URL: {str(e)}")

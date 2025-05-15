@@ -117,7 +117,7 @@ async def delete_object_endpoint(obj: ObjectDelete):
 async def generate_presigned_url_endpoint(url: PresignedUrl):
     """Generate a presigned URL for an object in the student-files bucket."""
     try:
-        return generate_presigned_url(minio_client, BUCKET_NAME, url.student_id, url.object_name, url.expires)
+        return generate_presigned_url(minio_client, BUCKET_NAME, url.student_id, url.object_name)
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
