@@ -17,7 +17,6 @@ class ObjectDelete(BaseModel):
 class PresignedUrl(BaseModel):
     object_name: str = Field(..., min_length=1)
     student_id: str = Field(..., min_length=1)
-    expires: int = Field(3600, ge=1, le=604800)  
 
 class FileUploadWithEmail(BaseModel):
     object_name: str = Field(..., min_length=1)
