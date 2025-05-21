@@ -1,13 +1,16 @@
+# NRSC Student Application Pipeline Requirements
 annotated-types==0.7.0
 anyio==4.9.0
 argon2-cffi==23.1.0
 argon2-cffi-bindings==21.2.0
+asyncio==3.4.3
 cachetools==5.5.2
 certifi==2025.4.26
 cffi==1.17.1
 charset-normalizer==3.4.2
 click==8.2.0
 colorama==0.4.6
+email-validator==2.1.0
 exceptiongroup==1.3.0
 fastapi==0.115.12
 google-ai-generativelanguage==0.6.15
@@ -21,7 +24,10 @@ grpcio==1.71.0
 grpcio-status==1.71.0
 h11==0.16.0
 httplib2==0.22.0
+httpx==0.27.0
 idna==3.10
+Jinja2==3.1.3
+MarkupSafe==2.1.5
 minio==7.2.15
 proto-plus==1.26.1
 protobuf==5.29.4

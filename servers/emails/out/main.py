@@ -6,7 +6,7 @@ import httpx
 import os
 from dotenv import load_dotenv
 import logging
-from typing import List
+from typing import List, Optional
 
 load_dotenv()
 
@@ -33,6 +33,7 @@ MINIO_SERVER_URL = os.getenv("MINIO_SERVER_URL", "http://localhost:8000")
 
 async def get_presigned_url(student_id: str, object_name: str, expires: int = 3600):
     """Fetch a presigned URL from the MinIO FastAPI server."""
+    # Use provided expires value directly, since we give it a default
     async with httpx.AsyncClient() as client:
         try:
             response = await client.post(
@@ -63,10 +64,12 @@ async def send_single_email(request: EmailRequest, attachments: List[UploadFile]
         # Generate MinIO presigned URL if requested
         minio_url = None
         if request.student_id and request.object_name:
+            # Use default expires time if None provided
+            expires_time = 3600 if request.expires is None else request.expires
             minio_url = await get_presigned_url(
                 request.student_id,
                 request.object_name,
-                request.expires
+                expires_time
             )
 
         # Send email
@@ -105,10 +108,12 @@ async def send_bulk_email(request: BulkEmailRequest, attachments: List[UploadFil
 
             # Generate MinIO presigned URL if requested
             if student_id and object_name:
+                # Use default expires time if None provided
+                expires_time = 3600 if request.expires is None else request.expires
                 minio_url = await get_presigned_url(
                     student_id,
                     object_name,
-                    request.expires
+                    expires_time
                 )
 
             result = send_email(
@@ -143,10 +148,12 @@ async def send_template_email(request: TemplateEmailRequest, attachments: List[U
         # Generate MinIO presigned URL if requested
         minio_url = None
         if request.student_id and request.object_name:
+            # Use default expires time if None provided
+            expires_time = 3600 if request.expires is None else request.expires
             minio_url = await get_presigned_url(
                 request.student_id,
                 request.object_name,
-                request.expires
+                expires_time
             )
 
         # Render template
