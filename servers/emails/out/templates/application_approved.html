@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>{{ subject }}</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+        color: #333;
+      }
+      .container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+      }
+      .header {
+        background-color: #d4edda;
+        padding: 15px;
+        text-align: center;
+        border-radius: 5px;
+      }
+      .content {
+        padding: 20px;
+      }
+      .next-steps {
+        background-color: #e8f4f8;
+        padding: 15px;
+        margin: 15px 0;
+        border-radius: 5px;
+      }
+      .dates {
+        background-color: #fff3cd;
+        padding: 10px;
+        margin: 10px 0;
+        border-radius: 5px;
+      }
+      .footer {
+        font-size: 12px;
+        color: #777;
+        text-align: center;
+        padding: 10px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="header">
+        <h2>Congratulations! Your Application is Approved</h2>
+      </div>
+      <div class="content">
+        <p>Dear {{ student_name | default('Student') }},</p>
+
+        <p>
+          We are pleased to inform you that your application to the NRSC Student
+          Program has been <strong>approved</strong>!
+        </p>
+
+        <p>
+          After careful review of your qualifications and submitted documents,
+          our team has determined that you are an excellent candidate for our
+          program.
+        </p>
+
+        <div class="next-steps">
+          <h3>Next Steps:</h3>
+          <ol>
+            <li>
+              Complete the onboarding process (details will be sent separately)
+            </li>
+            <li>Schedule your orientation session</li>
+            <li>Submit any additional required documents</li>
+          </ol>
+        </div>
+
+        {% if interview_date %}
+        <div class="dates">
+          <h3>Important Dates:</h3>
+          <p><strong>Orientation Session:</strong> {{ interview_date }}</p>
+          {% if interview_location %}
+          <p><strong>Location:</strong> {{ interview_location }}</p>
+          {% endif %}
+        </div>
+        {% endif %} {% if file_url %}
+        <p>
+          You can download your acceptance letter
+          <a href="{{ file_url }}">here</a>.
+        </p>
+        {% endif %}
+
+        <p>
+          We're excited to welcome you to the NRSC Student Program and look
+          forward to your contributions!
+        </p>
+
+        <p>Best regards,<br />NRSC Student Program Team</p>
+      </div>
+      <div class="footer">
+        <p>This is an automated message from the NRSC Student Program.</p>
+      </div>
+    </div>
+  </body>
+</html>

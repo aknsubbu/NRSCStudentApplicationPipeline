@@ -1,0 +1,29 @@
+FROM python:3.10-slim
+
+WORKDIR /app
+
+# Copy requirements and install dependencies
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Additional dependencies for PyMuPDF
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    libmupdf-dev \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy application code
+COPY servers/ai /app/
+COPY .env /app/.env
+
+# Set environment variables
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV PYTHONUNBUFFERED=1
+ENV PORT=8003
+
+# Expose the port
+EXPOSE ${PORT}
+
+# Run the FastAPI application
+CMD ["uvicorn", "server:app", "--host", "0.0.0.0", "--port", "8003"]
