@@ -11,8 +11,8 @@ from pydantic import BaseModel, Field
 import uvicorn
 from datetime import datetime
 import logging
-from pathlib import Path
 from dotenv import load_dotenv
+from pathlib import Path
 
 # Load environment variables
 load_dotenv()
@@ -131,11 +131,16 @@ def save_attachment(part, email_id: str, config: EmailConfig) -> Optional[Attach
         filename = part.get_filename()
         if filename:
             # Decode filename if needed
-            if decode_header(filename)[0][1] is not None:
-                filename = decode_header(filename)[0][0].decode(decode_header(filename)[0][1])
+            decoded_header = decode_header(filename)[0]
+            if decoded_header[1] is not None:
+                filename = decoded_header[0].decode(decoded_header[1])
+            elif isinstance(decoded_header[0], bytes):
+                filename = decoded_header[0].decode('utf-8')
+            else:
+                filename = decoded_header[0]
             
             # Create attachments directory if it doesn't exist
-            attachment_dir = Path(config.attachment_dir) / email_id
+            attachment_dir = Path(config.attachment_dir) / str(email_id)
             attachment_dir.mkdir(parents=True, exist_ok=True)
             
             filepath = attachment_dir / filename
@@ -155,10 +160,18 @@ def save_attachment(part, email_id: str, config: EmailConfig) -> Optional[Attach
 
 def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
     """Process a single email and extract its content."""
+    # Convert email_id to string if it's bytes
+    if isinstance(email_id, bytes):
+        email_id_str = email_id.decode()
+        email_id_bytes = email_id
+    else:
+        email_id_str = str(email_id)
+        email_id_bytes = email_id.encode() if isinstance(email_id, str) else email_id
+    
     # Fetch the email
-    result, data = mail.fetch(email_id, "(RFC822)")
+    result, data = mail.fetch(email_id_bytes, "(RFC822)")
     if result != "OK":
-        raise Exception(f"Error fetching email {email_id}")
+        raise Exception(f"Error fetching email {email_id_str}")
     
     raw_email = data[0][1]
     email_message = email.message_from_bytes(raw_email)
@@ -190,7 +203,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
             
             # Handle attachments
             if "attachment" in content_disposition:
-                attachment = save_attachment(part, email_id.decode(), config)
+                attachment = save_attachment(part, email_id_str, config)
                 if attachment:
                     attachments.append(attachment)
             # Handle text parts
@@ -213,7 +226,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
     
     # Create email content dictionary
     email_content = {
-        "id": email_id.decode(),
+        "id": email_id_str,
         "subject": subject,
         "sender": sender,
         "date": date,
@@ -230,7 +243,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
     
     # Mark as read if specified
     if config.mark_as_read:
-        mail.store(email_id, '+FLAGS', '\\Seen')
+        mail.store(email_id_bytes, '+FLAGS', '\\Seen')
     
     return email_content
 
