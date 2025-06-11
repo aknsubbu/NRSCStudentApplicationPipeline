@@ -1,0 +1,66 @@
+{
+  "total_emails": 7,
+  "application_emails": 1,
+  "processed_emails": 7,
+  "moved_emails": 1,
+  "emails": [
+    {
+      "id": "2",
+      "subject": "Fwd: Application for Internship at ISRO - NRSC",
+      "sender": "Richard Samuel D <richybe2022@gmail.com>",
+      "recipient": "\"bot.nrsc@gmail.com\" <bot.nrsc@gmail.com>",
+      "date": "Wed, 11 Jun 2025 09:49:13 +0530",
+      "body_text": "I hope this message finds you well. My name is Richard Samuel D, a\r\nthird-year B.E student specializing in Computer Science and Engineering\r\nwith specialisation in Artificial Intelligence and Machine Learning at PSG\r\nCollege of Technology, Coimbatore.\r\n\r\nI am writing to express my keen interest in the internship opportunity\r\nlisted on the NRSC website. My academic background and projects, including\r\nwork on image processing, predictive analytics, and machine learning\r\napplications, align well with the scope of the internship.\r\n\r\nI am eager to contribute my skills in AI, Machine Learning and Software\r\nDevelopment while gaining practical exposure to cutting-edge technologies\r\nand research at ISRO. I would be grateful for the opportunity to learn from\r\nesteemed experts in this field and contribute to ongoing projects at NRSC.\r\n\r\nI have attached my CV, Letter of Recommendation, Grade 10,12 mark sheets\r\nand my College Gradesheets from the past 3 semesters of my course for your\r\nconsideration. I would be delighted to discuss how I can contribute to\r\nNRSC’s ongoing initiatives. Thank you for considering my application. I\r\nlook forward to the possibility of contributing to your esteemed\r\norganization.\r\n\r\n*Sincerely,*\r\nRichard Samuel D\r\nB.E (CSE - AI & ML)\r\nPSG College of Technology, Coimbatore\r\nrichybe2022@gmail.com\r\n+91 9384559645",
+      "body_html": "<div dir=\"ltr\"><div class=\"gmail_quote gmail_quote_container\"><div dir=\"ltr\" class=\"gmail_attr\"><br></div><div dir=\"ltr\">I hope this message finds you well. My name is Richard Samuel D, a third-year B.E student specializing in Computer Science and Engineering with specialisation in Artificial Intelligence and Machine Learning at PSG College of Technology, Coimbatore.  <br><div><br></div><div>I am writing to express my keen interest in the internship opportunity listed on the NRSC website. My academic background and projects, including work on image processing, predictive analytics, and machine learning applications, align well with the scope of the internship.<br></div><div><br></div><div>I am eager to contribute my skills in AI, Machine Learning and Software Development while gaining practical exposure to cutting-edge technologies and research at ISRO. I would be grateful for the opportunity to learn from esteemed experts in this field and contribute to ongoing projects at NRSC.  <br></div><div><br></div><div>I have attached my CV, Letter of Recommendation, Grade 10,12 mark sheets and my College Gradesheets from the past 3 semesters of my course for your consideration. I would be delighted to discuss how I can contribute to NRSC’s ongoing initiatives. Thank you for considering my application. I look forward to the possibility of contributing to your esteemed organization.  <br></div><div><br></div><div><strong>Sincerely,</strong><br>Richard Samuel D<br>B.E (CSE - AI &amp; ML)<br>PSG College of Technology, Coimbatore<br><a href=\"mailto:richybe2022@gmail.com\" target=\"_blank\">richybe2022@gmail.com</a><br>+91 9384559645<br></div></div>\r\n</div></div>\r\n",
+      "is_application": true,
+      "keywords_found": ["application"],
+      "attachments": [
+        {
+          "filename": "RichardSamuel_Cv.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/2/RichardSamuel_Cv.pdf",
+          "size": 159489,
+          "content_base64": "",
+          "file_hash": "3104126d3483b212fb56de3c010cbff4"
+        },
+        {
+          "filename": "RichardSamuel_X.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/2/RichardSamuel_X.pdf",
+          "size": 677838,
+          "content_base64": "",
+          "file_hash": "32c5403c32b43d340ce86c0271d6842c"
+        },
+        {
+          "filename": "PSGCT_RichardSamuel_CSE(AI&ML).pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/2/PSGCT_RichardSamuel_CSE(AI&ML).pdf",
+          "size": 906923,
+          "content_base64": "",
+          "file_hash": "3ed1b9c96bf77af7a864014f075f97a6"
+        },
+        {
+          "filename": "RichardSamuel_XII.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/2/RichardSamuel_XII.pdf",
+          "size": 920727,
+          "content_base64": "",
+          "file_hash": "e7bffa4ccb915dc5653f517e93754123"
+        },
+        {
+          "filename": "RichardSamuel_Undergrad.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/2/RichardSamuel_Undergrad.pdf",
+          "size": 1404022,
+          "content_base64": "",
+          "file_hash": "b89de5e32c5747edbd1c906aefa2e1b3"
+        }
+      ],
+      "raw_email_base64": null,
+      "processed_timestamp": "2025-06-11T10:01:35.736588",
+      "email_hash": "c8b0c628579295979401ac242672ff89"
+    }
+  ],
+  "processing_time": 7.96,
+  "errors": []
+}
