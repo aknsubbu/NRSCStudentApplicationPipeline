@@ -8,6 +8,7 @@ import os
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
+from datetime import datetime
 
 load_dotenv()
 
@@ -53,6 +54,10 @@ BUCKET_NAME = os.getenv("BUCKET_NAME", "applicationdocs")
 #         return {"message": f"Email sent to {recipient}"}
 #     except Exception as e:
 #         raise HTTPException(status_code=500, detail=f"Failed to send email: {str(e)}")
+
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "timestamp": datetime.now().isoformat()}
 
 @app.post("/objects/upload/", response_model=dict, dependencies=[Depends(get_api_key)])
 async def upload_file_endpoint(file: FileUpload):
