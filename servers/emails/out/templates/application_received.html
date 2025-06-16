@@ -1,101 +1,518 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
   <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{{ subject }}</title>
     <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
       body {
-        font-family: Arial, sans-serif;
+        font-family: "Arial", "Helvetica", sans-serif;
         line-height: 1.6;
-        color: #333;
+        color: #2c3e50;
+        background-color: #f5f6fa;
+        padding: 20px 0;
       }
-      .container {
-        max-width: 600px;
+
+      .email-container {
+        max-width: 700px;
         margin: 0 auto;
-        padding: 20px;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
       }
+
+      /* Logo Section */
+      .logo-section {
+        background-color: #ffffff;
+        padding: 25px;
+        text-align: center;
+        border-bottom: 3px solid #1e3a8a;
+      }
+
+      .logo {
+        max-width: 400px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      .organization-info {
+        color: #374151;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .organization-name {
+        font-weight: 700;
+        font-size: 18px;
+        color: #1e3a8a;
+        margin-bottom: 5px;
+      }
+
+      .organization-tagline {
+        font-style: italic;
+        color: #6b7280;
+      }
+
+      /* Header Section */
       .header {
-        background-color: #d4edda;
-        padding: 15px;
+        background-color: #059669;
+        color: white;
         text-align: center;
-        border-radius: 5px;
+        padding: 30px 20px;
       }
+
+      .header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
+
+      .header-subtitle {
+        font-size: 18px;
+        font-weight: 400;
+        opacity: 0.95;
+      }
+
+      /* Content Section */
       .content {
-        padding: 20px;
+        padding: 40px 30px;
+        background-color: #ffffff;
       }
-      .next-steps {
-        background-color: #e8f4f8;
-        padding: 15px;
-        margin: 15px 0;
-        border-radius: 5px;
+
+      .greeting {
+        font-size: 18px;
+        color: #1f2937;
+        margin-bottom: 25px;
+        font-weight: 600;
       }
-      .application-id {
-        background-color: #f8f9fa;
-        padding: 10px;
-        margin: 10px 0;
-        border-left: 4px solid #28a745;
-        font-family: monospace;
+
+      .intro-text {
+        font-size: 16px;
+        color: #374151;
+        margin-bottom: 30px;
+        line-height: 1.7;
+        text-align: justify;
       }
-      .footer {
-        font-size: 12px;
-        color: #777;
+
+      /* Application ID Section */
+      .application-id-section {
+        background-color: #f0f9ff;
+        border: 2px solid #bae6fd;
+        border-left: 6px solid #0284c7;
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 4px;
         text-align: center;
-        padding: 10px;
+      }
+
+      .application-id-title {
+        font-size: 18px;
+        color: #0284c7;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .application-id {
+        font-family: "Courier New", monospace;
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        background-color: #ffffff;
+        padding: 15px;
+        border: 2px solid #0284c7;
+        border-radius: 4px;
+        letter-spacing: 2px;
+      }
+
+      .application-id-note {
+        font-size: 14px;
+        color: #6b7280;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      /* Status Section */
+      .status-section {
+        background-color: #f0fdf4;
+        border: 2px solid #bbf7d0;
+        border-left: 6px solid #059669;
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 4px;
+      }
+
+      .status-title {
+        font-size: 20px;
+        color: #059669;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #bbf7d0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-title::before {
+        content: "✓";
+        font-size: 24px;
+        color: #059669;
+      }
+
+      .status-description {
+        color: #374151;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      /* Next Steps Section */
+      .next-steps-section {
+        background-color: #fffbeb;
+        border: 2px solid #fed7aa;
+        border-left: 6px solid #ea580c;
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 4px;
+      }
+
+      .next-steps-title {
+        font-size: 20px;
+        color: #ea580c;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #fed7aa;
+      }
+
+      .next-steps-list {
+        counter-reset: step-counter;
+        list-style: none;
+        padding: 0;
+      }
+
+      .next-steps-list li {
+        counter-increment: step-counter;
+        padding: 15px 0 15px 45px;
+        position: relative;
+        border-bottom: 1px solid #fef3c7;
+        color: #374151;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .next-steps-list li:last-child {
+        border-bottom: none;
+      }
+
+      .next-steps-list li::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 15px;
+        background-color: #ea580c;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      /* File Access Section */
+      .file-access-section {
+        background-color: #f9fafb;
+        padding: 20px;
+        border: 1px solid #d1d5db;
+        margin: 20px 0;
+        text-align: center;
+        border-radius: 4px;
+      }
+
+      .file-access-button {
+        display: inline-block;
+        background-color: #0284c7;
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 16px;
+        border: 2px solid #0284c7;
+        transition: all 0.2s ease;
+      }
+
+      .file-access-button:hover {
+        background-color: #0369a1;
+        border-color: #0369a1;
+        text-decoration: none;
+        color: white;
+      }
+
+      .file-access-button::before {
+        content: "📄 ";
+        margin-right: 8px;
+      }
+
+      /* Contact Section */
+      .contact-info {
+        background-color: #f9fafb;
+        padding: 25px;
+        border: 2px dashed #9ca3af;
+        margin: 30px 0;
+        text-align: center;
+        border-radius: 4px;
+      }
+
+      .contact-info h3 {
+        color: #374151;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      .contact-info p {
+        margin-bottom: 10px;
+        color: #6b7280;
+        line-height: 1.6;
+      }
+
+      .contact-email {
+        color: #0284c7;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .contact-email:hover {
+        text-decoration: underline;
+      }
+
+      /* Signature Section */
+      .signature {
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 2px solid #e5e7eb;
+      }
+
+      .signature-title {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+
+      .signature-org {
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* Footer Section */
+      .footer {
+        background-color: #63666a;
+        color: #d1d5db;
+        text-align: center;
+        padding: 25px 20px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .footer-title {
+        font-weight: 700;
+        color: #f9fafb;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .footer-divider {
+        width: 80px;
+        height: 2px;
+        background-color: #dc700b;
+        margin: 15px auto;
+      }
+
+      .footer p {
+        margin-bottom: 8px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 600px) {
+        .email-container {
+          margin: 0 10px;
+        }
+
+        .content {
+          padding: 25px 20px;
+        }
+
+        .logo-section {
+          padding: 20px 15px;
+        }
+
+        .header {
+          padding: 25px 15px;
+        }
+
+        .header h1 {
+          font-size: 28px;
+        }
+
+        .logo {
+          max-width: 190px;
+        }
+
+        .next-steps-list li {
+          padding-left: 40px;
+        }
+
+        .next-steps-list li::before {
+          width: 24px;
+          height: 24px;
+          font-size: 12px;
+        }
+
+        .application-id {
+          font-size: 16px;
+          letter-spacing: 1px;
+        }
+      }
+
+      /* Print Styles */
+      @media print {
+        .email-container {
+          box-shadow: none;
+          border: 1px solid #000;
+        }
+
+        .file-access-button {
+          display: none;
+        }
       }
     </style>
   </head>
   <body>
-    <div class="container">
-      <div class="header">
-        <h2>Application Received</h2>
+    <div class="email-container">
+      <!-- Logo Section -->
+      <div class="logo-section">
+        <img
+          src="https://www.nrsc.gov.in/sites/default/files/inline-images/nrsc_logo_412023_new.png"
+          alt="NRSC Logo"
+          class="logo"
+        />
+        <div class="organization-info">
+          <div class="organization-tagline">
+            Indian Space Research Organisation
+          </div>
+        </div>
       </div>
+
+      <!-- Header Section -->
+      <div class="header">
+        <h1>APPLICATION RECEIVED</h1>
+        <div class="header-subtitle">Successfully Submitted</div>
+      </div>
+
+      <!-- Content Section -->
       <div class="content">
-        <p>Dear {{ student_name | default('Applicant') }},</p>
-
-        <p>
-          Thank you for submitting your application to the NRSC Student Program.
-          We have successfully received your application and all attachments.
-        </p>
-
-        <div class="application-id">
-          <strong>Your Application ID:</strong> {{ student_id }}
+        <div class="greeting">
+          Dear {{ student_name | default('Applicant') }},
         </div>
 
-        <p>
-          Please save this Application ID for future reference. You will need it
-          for any inquiries about your application status.
-        </p>
+        <div class="intro-text">
+          Thank you for submitting your application to the
+          <strong>NRSC Student Program</strong>. We have successfully received
+          your application and all attachments. Your submission is now being
+          processed by our automated validation system.
+        </div>
 
-        <div class="next-steps">
-          <h3>What happens next:</h3>
-          <ol>
-            <li>Our system is now processing your application</li>
-            <li>You will receive an email when validation is complete</li>
-            <li>If any issues are found, we will notify you promptly</li>
+        <div class="application-id-section">
+          <div class="application-id-title">Your Application ID</div>
+          <div class="application-id">{{ student_id }}</div>
+          <div class="application-id-note">
+            Please save this ID for future reference and include it in any
+            correspondence
+          </div>
+        </div>
+
+        <div class="status-section">
+          <div class="status-title">Application Status: Received</div>
+          <div class="status-description">
+            Your application has been successfully submitted and is currently in
+            our processing queue. Our system will automatically validate your
+            documents and notify you of the results.
+          </div>
+        </div>
+
+        <div class="next-steps-section">
+          <div class="next-steps-title">What Happens Next</div>
+          <ol class="next-steps-list">
+            <li>
+              Our automated system is now processing and validating your
+              application documents
+            </li>
+            <li>
+              You will receive an email notification once the validation process
+              is complete
+            </li>
+            <li>
+              If any issues are identified, we will promptly notify you with
+              detailed instructions for resolution
+            </li>
+            <li>
+              Upon successful validation, your application will proceed to the
+              review stage
+            </li>
           </ol>
         </div>
 
-        {% if file_url %}
-        <p>
-          You can access your submitted documents
-          <a href="{{ file_url }}">here</a>.
-        </p>
+        {% if message %}
+        <div class="intro-text">{{ message }}</div>
         {% endif %}
 
-        <p>{{ message | default('') }}</p>
+        <div class="contact-info">
+          <h3>Questions or Need Assistance?</h3>
+          <p>
+            If you have any questions about your application or need support,
+            please contact our team:
+          </p>
+          <p>
+            <a href="mailto:student@nrsc.gov.in" class="contact-email"
+              >student@nrsc.gov.in</a
+            >
+          </p>
+          <p>
+            <strong>Important:</strong> Please include your Application ID ({{
+            student_id }}) in the subject line of any emails.
+          </p>
+          <p>Office Hours: Monday to Friday, 9:00 AM to 5:30 PM IST</p>
+        </div>
 
-        <p>
-          If you have any questions, please contact us at support@nrsc.org and
-          include your Application ID in the subject line.
-        </p>
-
-        <p>Best regards,<br />NRSC Student Program Team</p>
+        <div class="signature">
+          <div class="signature-title">Best regards,</div>
+          <div class="signature-org">NRSC Training and Outreach Team</div>
+          <div class="signature-org">National Remote Sensing Centre</div>
+        </div>
       </div>
+
+      <!-- Footer Section -->
       <div class="footer">
-        <p>This is an automated message from the NRSC Student Program.</p>
+        <div class="footer-title">National Remote Sensing Centre</div>
+        <div class="footer-divider"></div>
+        <p>Indian Space Research Organisation (ISRO)</p>
         <p>
-          Please do not reply to this email. For support, contact
-          support@nrsc.org.
+          This is an automated message. Please do not reply directly to this
+          email.
         </p>
+        <p>For support, contact: student@nrsc.gov.in</p>
       </div>
     </div>
   </body>
