@@ -149,11 +149,16 @@ def validate_resume(text: str = None, images: list = None) -> dict:
         "Requirements:\n"
         "- Must mention technical skills\n"
         "- Should list projects or work experience\n"
-        "- Should include education details\n\n"
+        "- Should include education details\n"
+        "- Must include academic performance (CGPA/percentage)\n"
+        "- Minimum requirements: Class 10: 60%, Class 12: 60%, CGPA: 6.32\n\n"
         "Return your response in this exact format:\n"
         "VALID: [true/false]\n"
         "FEEDBACK: [your detailed feedback]\n"
-        "SKILLS: [list of skills detected]"
+        "SKILLS: [list of skills detected]\n"
+        "CLASS_10_PERCENTAGE: [percentage or NA]\n"
+        "CLASS_12_PERCENTAGE: [percentage or NA]\n"
+        "CGPA: [current CGPA or NA]"
     )
     
     try:
@@ -168,14 +173,37 @@ def validate_resume(text: str = None, images: list = None) -> dict:
         else:
             return {"valid": False, "feedback": "No content to validate"}
         
-        # Parse response
+        class_10_percentage = extract_field(response_text, "CLASS_10_PERCENTAGE")
+        class_12_percentage = extract_field(response_text, "CLASS_12_PERCENTAGE")
+        cgpa = extract_field(response_text, "CGPA")
+        
+        # Convert to numbers and validate
+        try:
+            class_10_percentage = float(class_10_percentage.replace("NA", "0"))
+            class_12_percentage = float(class_12_percentage.replace("NA", "0"))
+            cgpa = float(cgpa.replace("NA", "0"))
+            
+            academic_valid = (
+                class_10_percentage >= 60 and
+                class_12_percentage >= 60 and
+                cgpa >= 6.32
+            )
+        except ValueError:
+            academic_valid = False
+        
         valid_line = next((line for line in response_text.split('\n') 
                           if line.lower().startswith('valid:')), '')
-        valid = 'true' in valid_line.lower() and 'false' not in valid_line.lower()
+        skills_valid = 'true' in valid_line.lower()
         
         return {
-            "valid": valid,
-            "feedback": response_text
+            "valid": skills_valid and academic_valid,
+            "feedback": response_text,
+            "academic_details": {
+                "class_10": class_10_percentage,
+                "class_12": class_12_percentage,
+                "cgpa": cgpa,
+                "valid": academic_valid
+            }
         }
     except Exception as e:
         return {
@@ -631,3 +659,6 @@ async def validate_documents(
             }, 
             status_code=500
         )
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8005)
