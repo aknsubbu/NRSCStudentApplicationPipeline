@@ -697,4 +697,4 @@ if __name__ == "__main__":
     logger.info(f"  MINIO_SERVER_URL: {MINIO_SERVER_URL}")
     
     # Run the FastAPI app
-    uvicorn.run(app, host="0.0.0.0", port=8003, log_level="info")
+    uvicorn.run(app, host="0.0.0.0", port=8004, log_level="info")
