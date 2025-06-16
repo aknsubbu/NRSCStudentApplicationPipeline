@@ -8,6 +8,7 @@ import logging
 import io
 from PIL import Image
 import base64
+import re
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -21,7 +22,6 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 genai.configure(api_key=GEMINI_API_KEY)
 model = genai.GenerativeModel("gemini-2.5-flash-preview-05-20")
 
-
 # FastAPI app
 app = FastAPI(title="Internship AI Validator")
 
@@ -32,6 +32,25 @@ def extract_field(response_text: str, field_name: str) -> str:
         if line.lower().startswith(field_prefix.lower()):
             return line[len(field_prefix):].strip()
     return ""
+
+def extract_percentage(text: str) -> float:
+    """Extract percentage value from text and return as float"""
+    if not text:
+        return 0
+    
+    # Clean and validate percentage string
+    cleaned_percentage = re.sub(r'[^\d.]', '', text)
+    
+    if not cleaned_percentage:
+        return 0
+    
+    try:
+        percentage = float(cleaned_percentage)
+        if percentage < 0 or percentage > 100:
+            return 0
+        return percentage
+    except ValueError:
+        return 0
 
 def pdf_to_images(file: UploadFile) -> list:
     """Convert PDF pages to images"""
@@ -75,7 +94,6 @@ def is_text_extractable(text: str, min_length: int = 50) -> bool:
         return False
     
     # Check if text contains meaningful content (letters/numbers)
-    import re
     meaningful_chars = re.findall(r'[a-zA-Z0-9]', clean_text)
     return len(meaningful_chars) > min_length * 0.3  # At least 30% meaningful characters
 
@@ -142,23 +160,26 @@ def classify_document(text: str = None, images: list = None) -> str:
         logger.error(f"Error in document classification: {str(e)}")
         return "RESUME"  # Default to resume in case of error
 
-def validate_resume(text: str = None, images: list = None) -> dict:
-    """Validate resume using text or vision"""
+def validate_resume_with_marks(text: str = None, images: list = None) -> dict:
+    """Validate resume ensuring academic marks are present and meet requirements"""
     prompt = (
         "You are validating a student's resume for an internship application.\n"
-        "Requirements:\n"
-        "- Must mention technical skills\n"
-        "- Should list projects or work experience\n"
-        "- Should include education details\n"
-        "- Must include academic performance (CGPA/percentage)\n"
-        "- Minimum requirements: Class 10: 60%, Class 12: 60%, CGPA: 6.32\n\n"
+        "CRITICAL REQUIREMENTS:\n"
+        "1. The resume MUST mention academic performance (Class 10, Class 12, and CGPA)\n"
+        "2. Minimum requirements: Class 10: 60%, Class 12: 60%, CGPA: 6.32\n"
+        "3. Must mention technical skills\n"
+        "4. Should list projects or work experience\n"
+        "5. Should include education details\n\n"
+        "IMPORTANT: If academic marks are not mentioned in the resume, mark as INVALID.\n"
         "Return your response in this exact format:\n"
         "VALID: [true/false]\n"
         "FEEDBACK: [your detailed feedback]\n"
         "SKILLS: [list of skills detected]\n"
-        "CLASS_10_PERCENTAGE: [percentage or NA]\n"
-        "CLASS_12_PERCENTAGE: [percentage or NA]\n"
-        "CGPA: [current CGPA or NA]"
+        "CLASS_10_PERCENTAGE: [percentage found in resume or NA]\n"
+        "CLASS_12_PERCENTAGE: [percentage found in resume or NA]\n"
+        "CGPA: [CGPA found in resume or NA]\n"
+        "MARKS_MENTIONED: [true/false - whether academic marks are mentioned]\n"
+        "MEETS_MINIMUM_CRITERIA: [true/false - whether marks meet minimum requirements]"
     )
     
     try:
@@ -173,42 +194,150 @@ def validate_resume(text: str = None, images: list = None) -> dict:
         else:
             return {"valid": False, "feedback": "No content to validate"}
         
-        class_10_percentage = extract_field(response_text, "CLASS_10_PERCENTAGE")
-        class_12_percentage = extract_field(response_text, "CLASS_12_PERCENTAGE")
-        cgpa = extract_field(response_text, "CGPA")
+        # Extract academic details
+        class_10_percentage = extract_percentage(extract_field(response_text, "CLASS_10_PERCENTAGE"))
+        class_12_percentage = extract_percentage(extract_field(response_text, "CLASS_12_PERCENTAGE"))
+        cgpa_str = extract_field(response_text, "CGPA")
+        cgpa = extract_percentage(cgpa_str) if cgpa_str != "NA" else 0
         
-        # Convert to numbers and validate
-        try:
-            class_10_percentage = float(class_10_percentage.replace("NA", "0"))
-            class_12_percentage = float(class_12_percentage.replace("NA", "0"))
-            cgpa = float(cgpa.replace("NA", "0"))
-            
-            academic_valid = (
-                class_10_percentage >= 60 and
-                class_12_percentage >= 60 and
-                cgpa >= 6.32
-            )
-        except ValueError:
-            academic_valid = False
+        # Check if marks are mentioned
+        marks_mentioned_line = extract_field(response_text, "MARKS_MENTIONED")
+        marks_mentioned = 'true' in marks_mentioned_line.lower()
         
+        # Validate minimum criteria
+        meets_class_10 = class_10_percentage >= 60
+        meets_class_12 = class_12_percentage >= 60
+        meets_cgpa = cgpa >= 6.32
+        
+        academic_valid = meets_class_10 and meets_class_12 and meets_cgpa
+        
+        # Check other resume requirements
         valid_line = next((line for line in response_text.split('\n') 
                           if line.lower().startswith('valid:')), '')
         skills_valid = 'true' in valid_line.lower()
         
+        # Overall validation: must have marks mentioned AND meet criteria AND have skills
+        overall_valid = marks_mentioned and academic_valid and skills_valid
+        
+        feedback_parts = []
+        if not marks_mentioned:
+            feedback_parts.append("Academic marks (Class 10, Class 12, CGPA) must be mentioned in resume")
+        if not meets_class_10 and class_10_percentage > 0:
+            feedback_parts.append(f"Class 10 percentage ({class_10_percentage}%) below required 60%")
+        if not meets_class_12 and class_12_percentage > 0:
+            feedback_parts.append(f"Class 12 percentage ({class_12_percentage}%) below required 60%")
+        if not meets_cgpa and cgpa > 0:
+            feedback_parts.append(f"CGPA ({cgpa}) below required 6.32")
+        if not skills_valid:
+            feedback_parts.append("Technical skills not adequately mentioned")
+        
+        detailed_feedback = ". ".join(feedback_parts) if feedback_parts else "Resume meets all requirements"
+        
         return {
-            "valid": skills_valid and academic_valid,
-            "feedback": response_text,
+            "valid": overall_valid,
+            "feedback": detailed_feedback,
+            "marks_mentioned": marks_mentioned,
             "academic_details": {
                 "class_10": class_10_percentage,
                 "class_12": class_12_percentage,
                 "cgpa": cgpa,
-                "valid": academic_valid
-            }
+                "meets_criteria": academic_valid
+            },
+            "full_ai_response": response_text
         }
     except Exception as e:
         return {
             "valid": False,
             "feedback": f"Error validating resume: {str(e)}"
+        }
+
+def validate_cover_letter_with_marks(text: str = None, images: list = None) -> dict:
+    """Validate cover letter ensuring academic marks are present and meet requirements"""
+    prompt = (
+        "You are validating a student's cover letter for an internship application.\n"
+        "CRITICAL REQUIREMENTS:\n"
+        "1. The cover letter MUST mention academic performance (Class 10, Class 12, and CGPA)\n"
+        "2. Minimum requirements: Class 10: 60%, Class 12: 60%, CGPA: 6.32\n"
+        "3. Must include student's motivation/interest\n"
+        "4. Should reference specific skills relevant to the position\n"
+        "5. Should have proper formatting (greeting, closing)\n\n"
+        "IMPORTANT: If academic marks are not mentioned in the cover letter, mark as INVALID.\n"
+        "Return your response in this exact format:\n"
+        "VALID: [true/false]\n"
+        "FEEDBACK: [your detailed feedback]\n"
+        "HIGHLIGHTS: [key points mentioned]\n"
+        "CLASS_10_PERCENTAGE: [percentage found in cover letter or NA]\n"
+        "CLASS_12_PERCENTAGE: [percentage found in cover letter or NA]\n"
+        "CGPA: [CGPA found in cover letter or NA]\n"
+        "MARKS_MENTIONED: [true/false - whether academic marks are mentioned]\n"
+        "MEETS_MINIMUM_CRITERIA: [true/false - whether marks meet minimum requirements]"
+    )
+    
+    try:
+        if text and is_text_extractable(text):
+            full_prompt = f"{prompt}\n\nCover letter content:\n{text}"
+            response = model.generate_content(full_prompt)
+            response_text = response.text.strip()
+        elif images:
+            response_text = process_document_with_vision(images, prompt)
+        else:
+            return {"valid": False, "feedback": "No content to validate"}
+        
+        # Extract academic details
+        class_10_percentage = extract_percentage(extract_field(response_text, "CLASS_10_PERCENTAGE"))
+        class_12_percentage = extract_percentage(extract_field(response_text, "CLASS_12_PERCENTAGE"))
+        cgpa_str = extract_field(response_text, "CGPA")
+        cgpa = extract_percentage(cgpa_str) if cgpa_str != "NA" else 0
+        
+        # Check if marks are mentioned
+        marks_mentioned_line = extract_field(response_text, "MARKS_MENTIONED")
+        marks_mentioned = 'true' in marks_mentioned_line.lower()
+        
+        # Validate minimum criteria
+        meets_class_10 = class_10_percentage >= 60
+        meets_class_12 = class_12_percentage >= 60
+        meets_cgpa = cgpa >= 6.32
+        
+        academic_valid = meets_class_10 and meets_class_12 and meets_cgpa
+        
+        # Check other cover letter requirements
+        valid_line = next((line for line in response_text.split('\n') 
+                          if line.lower().startswith('valid:')), '')
+        content_valid = 'true' in valid_line.lower()
+        
+        # Overall validation: must have marks mentioned AND meet criteria AND have good content
+        overall_valid = marks_mentioned and academic_valid and content_valid
+        
+        feedback_parts = []
+        if not marks_mentioned:
+            feedback_parts.append("Academic marks (Class 10, Class 12, CGPA) must be mentioned in cover letter")
+        if not meets_class_10 and class_10_percentage > 0:
+            feedback_parts.append(f"Class 10 percentage ({class_10_percentage}%) below required 60%")
+        if not meets_class_12 and class_12_percentage > 0:
+            feedback_parts.append(f"Class 12 percentage ({class_12_percentage}%) below required 60%")
+        if not meets_cgpa and cgpa > 0:
+            feedback_parts.append(f"CGPA ({cgpa}) below required 6.32")
+        if not content_valid:
+            feedback_parts.append("Cover letter content does not meet formatting/motivation requirements")
+        
+        detailed_feedback = ". ".join(feedback_parts) if feedback_parts else "Cover letter meets all requirements"
+        
+        return {
+            "valid": overall_valid,
+            "feedback": detailed_feedback,
+            "marks_mentioned": marks_mentioned,
+            "academic_details": {
+                "class_10": class_10_percentage,
+                "class_12": class_12_percentage,
+                "cgpa": cgpa,
+                "meets_criteria": academic_valid
+            },
+            "full_ai_response": response_text
+        }
+    except Exception as e:
+        return {
+            "valid": False,
+            "feedback": f"Error validating cover letter: {str(e)}"
         }
 
 def validate_lor(text: str = None, images: list = None) -> dict:
@@ -257,157 +386,20 @@ def validate_lor(text: str = None, images: list = None) -> dict:
             "feedback": f"Error validating letter of recommendation: {str(e)}"
         }
 
-def validate_cover_letter(text: str = None, images: list = None) -> dict:
-    """Validate cover letter using text or vision"""
+def validate_marksheet_for_backlogs(text: str = None, images: list = None, class_level: str = "10") -> dict:
+    """Validate marksheet specifically checking for backlogs only"""
     prompt = (
-        "You are validating a student's cover letter for an internship application.\n"
-        "Requirements:\n"
-        "- Must include student's motivation/interest\n"
-        "- Should reference specific skills relevant to the position\n"
-        "- Should have proper formatting (greeting, closing)\n\n"
+        f"You are validating a Class {class_level} marksheet for backlog check only.\n"
+        "CRITICAL REQUIREMENT:\n"
+        "- Check if there are any current backlogs/failed subjects\n"
+        "- If ANY backlogs exist, mark as INVALID\n\n"
         "Return your response in this exact format:\n"
         "VALID: [true/false]\n"
         "FEEDBACK: [your detailed feedback]\n"
-        "HIGHLIGHTS: [key points mentioned]"
-    )
-    
-    try:
-        if text and is_text_extractable(text):
-            full_prompt = f"{prompt}\n\nCover letter content:\n{text}"
-            response = model.generate_content(full_prompt)
-            response_text = response.text.strip()
-        elif images:
-            response_text = process_document_with_vision(images, prompt)
-        else:
-            return {"valid": False, "feedback": "No content to validate"}
-        
-        valid_line = next((line for line in response_text.split('\n') 
-                          if line.lower().startswith('valid:')), '')
-        valid = 'true' in valid_line.lower() and 'false' not in valid_line.lower()
-        
-        return {
-            "valid": valid,
-            "feedback": response_text
-        }
-    except Exception as e:
-        return {
-            "valid": False,
-            "feedback": f"Error validating cover letter: {str(e)}"
-        }
-
-def validate_school_marksheet(text: str = None, images: list = None, class_level: str = "10") -> dict:
-    """Validate 10th or 12th marksheet with minimum 60% requirement using text or vision"""
-    logger.info(f"Starting validation for Class {class_level} marksheet")
-    
-    prompt = (
-        f"You are validating a Class {class_level} marksheet.\n"
-        "Requirements:\n"
-        "- Must have student name and school details\n"
-        "- Must have overall percentage\n"
-        "- Minimum required percentage is 60%\n\n"
-        "IMPORTANT: Look for the overall percentage or total marks percentage in the document.\n"
-        "Return your response in this exact format (DO NOT include brackets):\n"
-        "VALID: true or false\n"
-        "FEEDBACK: detailed feedback\n"
-        "STUDENT_NAME: name of student\n"
-        "SCHOOL_NAME: name of school\n"
-        "PERCENTAGE: ONLY the number (e.g., 75.5 or 82) without any brackets or symbols\n"
-        "YEAR: year of passing"
-    )
-    
-    try:
-        logger.info("Generating AI response")
-        
-        if text and is_text_extractable(text):
-            # Use text-based validation
-            full_prompt = f"{prompt}\n\nMarksheet content:\n{text}"
-            response = model.generate_content(full_prompt)
-            response_text = response.text.strip()
-        elif images:
-            # Use vision-based validation
-            logger.info("Using vision-based validation for marksheet")
-            response_text = process_document_with_vision(images, prompt)
-        else:
-            return {
-                "valid": False,
-                "feedback": "No content to validate",
-                "percentage": 0,
-                "student_name": "",
-                "school_name": "",
-                "year": "",
-                "class_level": class_level
-            }
-        
-        logger.debug(f"AI Response for Class {class_level}: {response_text}")
-        
-        # Extract percentage with better error handling
-        percentage_str = extract_field(response_text, "PERCENTAGE")
-        logger.debug(f"Raw percentage string: {percentage_str}")
-        
-        # Clean and validate percentage string
-        import re
-        cleaned_percentage = re.sub(r'[^\d.]', '', percentage_str)
-        
-        if not cleaned_percentage:
-            logger.warning(f"No valid percentage found in: {percentage_str}")
-            percentage = 0
-        else:
-            try:
-                percentage = float(cleaned_percentage)
-                if percentage < 0 or percentage > 100:
-                    logger.warning(f"Percentage out of range: {percentage}")
-                    percentage = 0
-            except ValueError:
-                logger.error(f"Could not convert percentage to float: {cleaned_percentage}")
-                percentage = 0
-        
-        logger.info(f"Final parsed percentage: {percentage}")
-        
-        meets_criteria = percentage >= 60.0
-        
-        result = {
-            "valid": meets_criteria,
-            "percentage": percentage,
-            "student_name": extract_field(response_text, "STUDENT_NAME"),
-            "school_name": extract_field(response_text, "SCHOOL_NAME"),
-            "year": extract_field(response_text, "YEAR"),
-            "feedback": (f"Percentage {percentage}% {'meets' if meets_criteria else 'does not meet'} "
-                       "the minimum requirement of 60%"),
-            "class_level": class_level
-        }
-        
-        logger.info(f"Class {class_level} validation result: {result}")
-        return result
-        
-    except Exception as e:
-        logger.error(f"Error validating Class {class_level} marksheet: {str(e)}", exc_info=True)
-        return {
-            "valid": False,
-            "feedback": f"Error validating Class {class_level} marksheet: {str(e)}",
-            "percentage": 0,
-            "student_name": "",
-            "school_name": "",
-            "year": "",
-            "class_level": class_level
-        }
-
-def validate_college_marksheet(text: str = None, images: list = None) -> dict:
-    """Validate college semester marksheets with CGPA requirement and backlog check"""
-    prompt = (
-        "You are validating college semester marksheets.\n"
-        "Critical Requirements:\n"
-        "1. CGPA must be at least 6.32\n"
-        "2. No current backlogs allowed\n"
-        "3. Extract GPAs for each semester\n\n"
-        "IMPORTANT: Look for CGPA, GPA, or cumulative grade point average in the document.\n"
-        "Return your response in this exact format (DO NOT include brackets):\n"
-        "VALID: true or false\n"
-        "FEEDBACK: detailed feedback\n"
-        "SEMESTER_GPAS: comma-separated list of GPAs (e.g., 7.5,8.0,7.8)\n"
-        "CURRENT_CGPA: ONLY the number (e.g., 7.5) without brackets\n"
-        "BACKLOGS: number of current backlogs (use 0 if none)\n"
-        "FAILED_SUBJECTS: list any currently failed subjects (or write 'None')\n"
-        "COLLEGE_NAME: name of institution"
+        "BACKLOGS: [number of backlogs found]\n"
+        "FAILED_SUBJECTS: [list of failed subjects or 'None']\n"
+        "STUDENT_NAME: [name of student]\n"
+        "SCHOOL_NAME: [name of school/institution]"
     )
     
     try:
@@ -420,17 +412,7 @@ def validate_college_marksheet(text: str = None, images: list = None) -> dict:
         else:
             return {"valid": False, "feedback": "No content to validate"}
         
-        # Extract CGPA with better parsing
-        cgpa_str = extract_field(response_text, "CURRENT_CGPA")
-        import re
-        cleaned_cgpa = re.sub(r'[^\d.]', '', cgpa_str)
-        
-        try:
-            cgpa = float(cleaned_cgpa) if cleaned_cgpa else 0
-        except ValueError:
-            cgpa = 0
-        
-        # Extract backlogs
+        # Extract backlog information
         backlogs_str = extract_field(response_text, "BACKLOGS")
         cleaned_backlogs = re.sub(r'[^\d]', '', backlogs_str)
         
@@ -439,89 +421,76 @@ def validate_college_marksheet(text: str = None, images: list = None) -> dict:
         except ValueError:
             backlogs = 0
         
-        # Extract semester GPAs
-        semester_gpas_str = extract_field(response_text, "SEMESTER_GPAS")
-        semester_gpas = []
-        if semester_gpas_str:
-            for gpa in semester_gpas_str.split(','):
-                cleaned_gpa = re.sub(r'[^\d.]', '', gpa.strip())
-                if cleaned_gpa:
-                    try:
-                        semester_gpas.append(float(cleaned_gpa))
-                    except ValueError:
-                        continue
-        
-        # Validation criteria
-        meets_cgpa = cgpa >= 6.32
+        # Validation based on backlogs only
         no_backlogs = backlogs == 0
         
         return {
-            "valid": meets_cgpa and no_backlogs,
-            "college_name": extract_field(response_text, "COLLEGE_NAME"),
-            "academic_details": {
-                "semester_gpas": semester_gpas,
-                "current_cgpa": cgpa,
-                "backlogs": backlogs,
-                "failed_subjects": extract_field(response_text, "FAILED_SUBJECTS")
-            },
-            "validation_summary": {
-                "meets_cgpa_requirement": meets_cgpa,
-                "has_no_backlogs": no_backlogs
-            },
-            "feedback": extract_field(response_text, "FEEDBACK")
+            "valid": no_backlogs,
+            "feedback": f"Backlog check: {'Pass' if no_backlogs else 'Fail'} - {backlogs} backlogs found",
+            "backlogs": backlogs,
+            "failed_subjects": extract_field(response_text, "FAILED_SUBJECTS"),
+            "student_name": extract_field(response_text, "STUDENT_NAME"),
+            "institution_name": extract_field(response_text, "SCHOOL_NAME"),
+            "class_level": class_level
         }
     except Exception as e:
         return {
             "valid": False,
-            "feedback": f"Error validating college marksheet: {str(e)}"
+            "feedback": f"Error validating marksheet: {str(e)}",
+            "backlogs": 999,  # Assume backlogs if error
+            "class_level": class_level
         }
 
-def validate_all_marksheets(class_10_file: UploadFile, class_12_file: UploadFile, college_file: UploadFile) -> dict:
-    """Validate all academic documents together with smart text/vision processing"""
-    logger.info("Starting validation of all marksheets")
+def validate_all_marksheets_for_backlogs(class_10_file: UploadFile, class_12_file: UploadFile, college_file: UploadFile) -> dict:
+    """Validate all marksheets specifically for backlog check only"""
+    logger.info("Starting backlog validation for all marksheets")
     
     # Process Class 10 marksheet
     class_10_text, class_10_text_extractable = extract_text_from_pdf(class_10_file)
     if not class_10_text_extractable:
         logger.info("Class 10 marksheet: Text not extractable, using vision")
         class_10_images = pdf_to_images(class_10_file)
-        class_10_result = validate_school_marksheet(images=class_10_images, class_level="10")
-        print("Class 10 marksheet output", class_10_result)
+        class_10_result = validate_marksheet_for_backlogs(images=class_10_images, class_level="10")
     else:
         logger.info("Class 10 marksheet: Using text-based validation")
-        class_10_result = validate_school_marksheet(text=class_10_text, class_level="10")
+        class_10_result = validate_marksheet_for_backlogs(text=class_10_text, class_level="10")
     
     # Process Class 12 marksheet
     class_12_text, class_12_text_extractable = extract_text_from_pdf(class_12_file)
     if not class_12_text_extractable:
         logger.info("Class 12 marksheet: Text not extractable, using vision")
         class_12_images = pdf_to_images(class_12_file)
-        class_12_result = validate_school_marksheet(images=class_12_images, class_level="12")
+        class_12_result = validate_marksheet_for_backlogs(images=class_12_images, class_level="12")
     else:
         logger.info("Class 12 marksheet: Using text-based validation")
-        class_12_result = validate_school_marksheet(text=class_12_text, class_level="12")
+        class_12_result = validate_marksheet_for_backlogs(text=class_12_text, class_level="12")
     
     # Process College marksheet
     college_text, college_text_extractable = extract_text_from_pdf(college_file)
     if not college_text_extractable:
         logger.info("College marksheet: Text not extractable, using vision")
         college_images = pdf_to_images(college_file)
-        college_result = validate_college_marksheet(images=college_images)
+        college_result = validate_marksheet_for_backlogs(images=college_images, class_level="College")
     else:
         logger.info("College marksheet: Using text-based validation")
-        college_result = validate_college_marksheet(text=college_text)
+        college_result = validate_marksheet_for_backlogs(text=college_text, class_level="College")
     
-    logger.info(f"Class 10 validation result: {class_10_result}")
-    logger.info(f"Class 12 validation result: {class_12_result}")
-    logger.info(f"College validation result: {college_result}")
+    logger.info(f"Class 10 backlog check: {class_10_result}")
+    logger.info(f"Class 12 backlog check: {class_12_result}")
+    logger.info(f"College backlog check: {college_result}")
     
     all_valid = (class_10_result["valid"] and 
                 class_12_result["valid"] and 
                 college_result["valid"])
     
+    total_backlogs = (class_10_result.get("backlogs", 0) + 
+                     class_12_result.get("backlogs", 0) + 
+                     college_result.get("backlogs", 0))
+    
     return {
         "valid": all_valid,
-        "academic_records": {
+        "total_backlogs": total_backlogs,
+        "marksheet_results": {
             "class_10": class_10_result,
             "class_12": class_12_result,
             "college": college_result
@@ -532,70 +501,71 @@ def validate_all_marksheets(class_10_file: UploadFile, class_12_file: UploadFile
             "college": "vision" if not college_text_extractable else "text"
         },
         "overall_feedback": {
-            "meets_all_criteria": all_valid,
-            "issues": [item for item in [
-                "Class 10: Below 60%" if not class_10_result["valid"] else None,
-                "Class 12: Below 60%" if not class_12_result["valid"] else None,
-                "College: CGPA below 6.32 or has backlogs" if not college_result["valid"] else None
-            ] if item is not None]
+            "passes_backlog_check": all_valid,
+            "total_backlogs_found": total_backlogs
         }
     }
 
 def evaluate_overall_application(resume_result: dict, lor_result: dict, marksheet_result: dict) -> dict:
-    """Evaluate all documents and provide overall application status"""
-    all_valid = resume_result["valid"] and lor_result["valid"] and marksheet_result["valid"]
+    """Evaluate all documents with strict academic mark requirements"""
+    # Check if resume/cover letter has marks mentioned and meets criteria
+    marks_mentioned = resume_result.get("marks_mentioned", False)
+    academic_criteria_met = resume_result.get("academic_details", {}).get("meets_criteria", False)
     
-    # Extract specific data points from results
-    skills = extract_field(resume_result.get("feedback", ""), "SKILLS")
-    recommender = extract_field(lor_result.get("feedback", ""), "RECOMMENDER")
+    # All conditions must be met
+    all_valid = (
+        resume_result["valid"] and  # Resume/cover letter valid with marks
+        lor_result["valid"] and     # LOR valid
+        marksheet_result["valid"] and  # No backlogs in marksheets
+        marks_mentioned and         # Marks must be mentioned
+        academic_criteria_met       # Marks must meet minimum criteria
+    )
     
-    # Extract academic information from marksheet result
-    academic_records = marksheet_result.get("academic_records", {})
-    college_details = academic_records.get("college", {}).get("academic_details", {})
-    cgpa = college_details.get("current_cgpa", "N/A")
-    
-    detailed_feedback = {
-        "resume": {
-            "valid": resume_result["valid"],
-            "feedback": extract_field(resume_result.get("feedback", ""), "FEEDBACK"),
-            "skills": skills
-        },
-        "letter_of_recommendation": {
-            "valid": lor_result["valid"],
-            "feedback": extract_field(lor_result.get("feedback", ""), "FEEDBACK"),
-            "recommender": recommender
-        },
-        "academic_records": {
-            "valid": marksheet_result["valid"],
-            "details": marksheet_result.get("academic_records", {}),
-            "overall_feedback": marksheet_result.get("overall_feedback", {}),
-            "processing_methods": marksheet_result.get("processing_methods", {})
-        }
-    }
+    # Generate detailed feedback
+    issues = []
+    if not marks_mentioned:
+        issues.append("Academic marks not mentioned in resume/cover letter")
+    if not academic_criteria_met:
+        issues.append("Academic marks do not meet minimum requirements")
+    if not resume_result["valid"]:
+        issues.append("Resume/cover letter validation failed")
+    if not lor_result["valid"]:
+        issues.append("Letter of recommendation validation failed")
+    if not marksheet_result["valid"]:
+        issues.append(f"Backlogs found in marksheets (Total: {marksheet_result.get('total_backlogs', 0)})")
     
     overall_status = "accepted" if all_valid else "rejected"
     
-    # Generate overall summary
     if all_valid:
-        summary = (f"Application is complete and meets all requirements. "
-                  f"CGPA: {cgpa}, Skills: {skills}, "
-                  f"Recommended by: {recommender}.")
+        summary = "Application meets all requirements: academic marks mentioned and meet criteria, no backlogs found."
     else:
-        missing_docs = []
-        if not resume_result["valid"]:
-            missing_docs.append("resume")
-        if not lor_result["valid"]:
-            missing_docs.append("letter of recommendation")
-        if not marksheet_result["valid"]:
-            missing_docs.append("academic records")
-        
-        summary = f"Application incomplete. Issues found in: {', '.join(missing_docs)}."
+        summary = f"Application rejected. Issues: {'; '.join(issues)}"
     
     return {
         "valid": all_valid,
         "status": overall_status,
         "summary": summary,
-        "detailed_feedback": detailed_feedback
+        "marks_mentioned_in_resume": marks_mentioned,
+        "academic_criteria_met": academic_criteria_met,
+        "detailed_feedback": {
+            "resume_cover_letter": {
+                "valid": resume_result["valid"],
+                "marks_mentioned": marks_mentioned,
+                "academic_details": resume_result.get("academic_details", {}),
+                "feedback": resume_result.get("feedback", "")
+            },
+            "letter_of_recommendation": {
+                "valid": lor_result["valid"],
+                "feedback": lor_result.get("feedback", "")
+            },
+            "marksheets_backlog_check": {
+                "valid": marksheet_result["valid"],
+                "total_backlogs": marksheet_result.get("total_backlogs", 0),
+                "details": marksheet_result.get("marksheet_results", {}),
+                "feedback": marksheet_result.get("overall_feedback", {})
+            }
+        },
+        "rejection_reasons": issues if not all_valid else []
     }
 
 @app.post("/validate")
@@ -607,28 +577,28 @@ async def validate_documents(
     college_marksheets: UploadFile = File(...)
 ):
     try:
-        logger.info("Starting document validation")
+        logger.info("Starting document validation with strict mark requirements")
         
-        # Process resume with smart text/vision fallback
+        # Process resume/cover letter with mark requirements
         resume_text, resume_text_extractable = extract_text_from_pdf(resume)
         logger.info(f"Resume text extractable: {resume_text_extractable}")
         
         if resume_text_extractable:
             doc_type = classify_document(text=resume_text)
             if doc_type == "RESUME":
-                resume_result = validate_resume(text=resume_text)
+                resume_result = validate_resume_with_marks(text=resume_text)
             else:
-                resume_result = validate_cover_letter(text=resume_text)
+                resume_result = validate_cover_letter_with_marks(text=resume_text)
         else:
             logger.info("Resume: Using vision-based processing")
             resume_images = pdf_to_images(resume)
             doc_type = classify_document(images=resume_images)
             if doc_type == "RESUME":
-                resume_result = validate_resume(images=resume_images)
+                resume_result = validate_resume_with_marks(images=resume_images)
             else:
-                resume_result = validate_cover_letter(images=resume_images)
+                resume_result = validate_cover_letter_with_marks(images=resume_images)
         
-        # Process LOR with smart text/vision fallback
+        # Process LOR
         lor_text, lor_text_extractable = extract_text_from_pdf(lor)
         logger.info(f"LOR text extractable: {lor_text_extractable}")
         
@@ -639,15 +609,14 @@ async def validate_documents(
             lor_images = pdf_to_images(lor)
             lor_result = validate_lor(images=lor_images)
         
-        # Process marksheets (this function now handles text/vision internally)
-        marksheet_result = validate_all_marksheets(class_10, class_12, college_marksheets)
+        # Process marksheets for backlog check only
+        marksheet_result = validate_all_marksheets_for_backlogs(class_10, class_12, college_marksheets)
         
         logger.info("Document validation complete")
         
-        # Evaluate overall application
+        # Evaluate overall application with strict requirements
         result = evaluate_overall_application(resume_result, lor_result, marksheet_result)
         result["document_type"] = doc_type
-        result["academic_details"] = marksheet_result
         
         return JSONResponse(content=result)
     except Exception as e:
@@ -659,6 +628,7 @@ async def validate_documents(
             }, 
             status_code=500
         )
+
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8005)
