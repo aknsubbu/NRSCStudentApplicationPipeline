@@ -110,6 +110,38 @@ async def send_template_email_application_received(request: TemplateEmailRecieve
         logger.error(f"Error sending template email: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.post("/email/template/application_validated", response_model=dict, dependencies=[Depends(get_api_key)])
+async def send_template_email_application_validated(request: TemplateEmailRecieved):
+    """Send an email using a predefined template with optional MinIO presigned URL."""
+    try: 
+        # Use default subject if none provided
+        subject = request.subject or 'Application Validated by NRSC Training and Outreach Team'
+        
+        # Render template
+        body = render_template(
+            template_name='application_validated.html',
+            subject=subject,
+            student_name=request.student_name,
+            application_id=request.application_id,
+            student_id=request.student_id,
+            message='Your application has been successfully validated by NRSC Training and Outreach Team. Please wait for the next steps.'
+            )
+
+        # Send email
+        result = send_email(
+            recipient=request.recipient,
+            subject=subject,
+            body=body,
+            is_html=True,
+        )
+        
+        logger.info(f"Template email sent successfully to {request.recipient}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error sending template email: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
 @app.post("/email/template/validation_failed", response_model=dict, dependencies=[Depends(get_api_key)])
 async def send_template_email_validation_failed(request: TemplateEmailRequest):
