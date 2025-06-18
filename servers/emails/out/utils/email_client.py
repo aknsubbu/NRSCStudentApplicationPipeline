@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def validate_email_config():
     """Validate that required email configuration is present."""
-    required_vars = ['EMAIL_SENDER', 'EMAIL_PASSWORD', 'SMTP_HOST', 'SMTP_PORT']
+    required_vars = ['EMAIL_SENDER', 'EMAIL_PASSWORD_OUT', 'SMTP_HOST', 'SMTP_PORT']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     
     if missing_vars:

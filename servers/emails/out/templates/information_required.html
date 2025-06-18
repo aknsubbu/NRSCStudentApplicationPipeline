@@ -1,0 +1,607 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ subject }}</title>
+    <style>
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        font-family: "Arial", "Helvetica", sans-serif;
+        line-height: 1.6;
+        color: #2c3e50;
+        background-color: #f5f6fa;
+        padding: 20px 0;
+      }
+
+      .email-container {
+        max-width: 700px;
+        margin: 0 auto;
+        background-color: #ffffff;
+        border: 1px solid #ddd;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+
+      /* Logo Section */
+      .logo-section {
+        background-color: #ffffff;
+        padding: 25px;
+        text-align: center;
+        border-bottom: 3px solid #1e3a8a;
+      }
+
+      .logo {
+        max-width: 400px;
+        height: auto;
+        margin-bottom: 10px;
+      }
+
+      .organization-info {
+        color: #374151;
+        font-size: 14px;
+        line-height: 1.4;
+      }
+
+      .organization-name {
+        font-weight: 700;
+        font-size: 18px;
+        color: #1e3a8a;
+        margin-bottom: 5px;
+      }
+
+      .organization-tagline {
+        font-style: italic;
+        color: #6b7280;
+      }
+
+      /* Header Section */
+      .header {
+        background-color: #0d169b;
+        color: white;
+        text-align: center;
+        padding: 30px 20px;
+      }
+
+      .header h1 {
+        font-size: 32px;
+        font-weight: 700;
+        margin-bottom: 10px;
+        letter-spacing: 1px;
+      }
+
+      .header-subtitle {
+        font-size: 18px;
+        font-weight: 400;
+        opacity: 0.95;
+      }
+
+      /* Content Section */
+      .content {
+        padding: 40px 30px;
+        background-color: #ffffff;
+      }
+
+      .greeting {
+        font-size: 18px;
+        color: #1f2937;
+        margin-bottom: 25px;
+        font-weight: 600;
+      }
+
+      .intro-text {
+        font-size: 16px;
+        color: #374151;
+        margin-bottom: 30px;
+        line-height: 1.7;
+        text-align: justify;
+      }
+
+      /* Application ID Section */
+      .application-id-section {
+        background-color: #f0f9ff;
+        border: 2px solid #bae6fd;
+        border-left: 6px solid #0284c7;
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 4px;
+        text-align: center;
+      }
+
+      .application-id-title {
+        font-size: 18px;
+        color: #0284c7;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .application-id {
+        font-family: "Courier New", monospace;
+        font-size: 20px;
+        font-weight: 700;
+        color: #1f2937;
+        background-color: #ffffff;
+        padding: 15px;
+        border: 2px solid #0284c7;
+        border-radius: 4px;
+        letter-spacing: 2px;
+      }
+
+      .application-id-note {
+        font-size: 14px;
+        color: #6b7280;
+        margin-top: 10px;
+        font-style: italic;
+      }
+
+      /* Status Section */
+      .status-section {
+        background-color: #fef3c7;
+        border: 2px solid #fcd34d;
+        border-left: 6px solid #f59e0b;
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 4px;
+      }
+
+      .status-title {
+        font-size: 20px;
+        color: #d97706;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #fcd34d;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+
+      .status-title::before {
+        content: "⚠";
+        font-size: 24px;
+        color: #f59e0b;
+      }
+
+      .status-description {
+        color: #374151;
+        margin-bottom: 20px;
+        line-height: 1.6;
+      }
+
+      /* Action Required Section */
+      .action-required-section {
+        background-color: #fef2f2;
+        border: 2px solid #fecaca;
+        border-left: 6px solid #dc2626;
+        padding: 25px;
+        margin: 30px 0;
+        border-radius: 4px;
+      }
+
+      .action-required-title {
+        font-size: 20px;
+        color: #dc2626;
+        font-weight: 700;
+        margin-bottom: 20px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #fecaca;
+      }
+
+      .action-required-list {
+        counter-reset: step-counter;
+        list-style: none;
+        padding: 0;
+      }
+
+      .action-required-list li {
+        counter-increment: step-counter;
+        padding: 15px 0 15px 45px;
+        position: relative;
+        border-bottom: 1px solid #fee2e2;
+        color: #374151;
+        font-size: 15px;
+        line-height: 1.6;
+      }
+
+      .action-required-list li:last-child {
+        border-bottom: none;
+      }
+
+      .action-required-list li::before {
+        content: counter(step-counter);
+        position: absolute;
+        left: 0;
+        top: 15px;
+        background-color: #dc2626;
+        color: white;
+        width: 28px;
+        height: 28px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 14px;
+      }
+
+      /* File Access Section */
+      .file-access-section {
+        background-color: #f0fdf4;
+        padding: 25px;
+        border: 2px solid #bbf7d0;
+        margin: 20px 0;
+        text-align: center;
+        border-radius: 4px;
+        border-left: 6px solid #059669;
+      }
+
+      .file-access-title {
+        font-size: 18px;
+        color: #059669;
+        font-weight: 700;
+        margin-bottom: 15px;
+      }
+
+      .file-access-button {
+        display: inline-block;
+        background-color: #059669;
+        color: white;
+        text-decoration: none;
+        padding: 12px 24px;
+        border-radius: 4px;
+        font-weight: 600;
+        font-size: 16px;
+        border: 2px solid #059669;
+        transition: all 0.2s ease;
+        margin: 10px;
+      }
+
+      .file-access-button:hover {
+        background-color: #047857;
+        border-color: #047857;
+        text-decoration: none;
+        color: white;
+      }
+
+      .file-access-button::before {
+        content: "📊 ";
+        margin-right: 8px;
+      }
+
+      .file-info {
+        font-size: 14px;
+        color: #6b7280;
+        margin-top: 15px;
+        line-height: 1.5;
+      }
+
+      /* Deadline Section */
+      .deadline-section {
+        background-color: #fef2f2;
+        border: 2px solid #fca5a5;
+        padding: 20px;
+        margin: 30px 0;
+        text-align: center;
+        border-radius: 4px;
+        border-left: 6px solid #ef4444;
+      }
+
+      .deadline-title {
+        font-size: 18px;
+        color: #dc2626;
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+
+      .deadline-date {
+        font-size: 22px;
+        font-weight: 700;
+        color: #1f2937;
+        font-family: "Courier New", monospace;
+        background-color: #ffffff;
+        padding: 12px;
+        border: 2px solid #dc2626;
+        border-radius: 4px;
+        display: inline-block;
+        margin: 10px 0;
+      }
+
+      .deadline-note {
+        font-size: 14px;
+        color: #6b7280;
+        font-style: italic;
+      }
+
+      /* Contact Section */
+      .contact-info {
+        background-color: #f9fafb;
+        padding: 25px;
+        border: 2px dashed #9ca3af;
+        margin: 30px 0;
+        text-align: center;
+        border-radius: 4px;
+      }
+
+      .contact-info h3 {
+        color: #374151;
+        margin-bottom: 15px;
+        font-size: 18px;
+      }
+
+      .contact-info p {
+        margin-bottom: 10px;
+        color: #6b7280;
+        line-height: 1.6;
+      }
+
+      .contact-email {
+        color: #0284c7;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 16px;
+      }
+
+      .contact-email:hover {
+        text-decoration: underline;
+      }
+
+      /* Signature Section */
+      .signature {
+        margin-top: 40px;
+        padding-top: 25px;
+        border-top: 2px solid #e5e7eb;
+      }
+
+      .signature-title {
+        font-weight: 700;
+        color: #1f2937;
+        font-size: 16px;
+        margin-bottom: 5px;
+      }
+
+      .signature-org {
+        color: #6b7280;
+        font-size: 14px;
+        font-weight: 500;
+      }
+
+      /* Footer Section */
+      .footer {
+        background-color: #63666a;
+        color: #d1d5db;
+        text-align: center;
+        padding: 25px 20px;
+        font-size: 13px;
+        line-height: 1.6;
+      }
+
+      .footer-title {
+        font-weight: 700;
+        color: #f9fafb;
+        font-size: 16px;
+        margin-bottom: 10px;
+      }
+
+      .footer-divider {
+        width: 80px;
+        height: 2px;
+        background-color: #dc700b;
+        margin: 15px auto;
+      }
+
+      .footer p {
+        margin-bottom: 8px;
+      }
+
+      /* Responsive Design */
+      @media (max-width: 600px) {
+        .email-container {
+          margin: 0 10px;
+        }
+
+        .content {
+          padding: 25px 20px;
+        }
+
+        .logo-section {
+          padding: 20px 15px;
+        }
+
+        .header {
+          padding: 25px 15px;
+        }
+
+        .header h1 {
+          font-size: 28px;
+        }
+
+        .logo {
+          max-width: 190px;
+        }
+
+        .action-required-list li {
+          padding-left: 40px;
+        }
+
+        .action-required-list li::before {
+          width: 24px;
+          height: 24px;
+          font-size: 12px;
+        }
+
+        .application-id {
+          font-size: 16px;
+          letter-spacing: 1px;
+        }
+
+        .deadline-date {
+          font-size: 18px;
+        }
+      }
+
+      /* Print Styles */
+      @media print {
+        .email-container {
+          box-shadow: none;
+          border: 1px solid #000;
+        }
+
+        .file-access-button {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="email-container">
+      <!-- Logo Section -->
+      <div class="logo-section">
+        <img
+          src="https://www.nrsc.gov.in/sites/default/files/inline-images/nrsc_logo_412023_new.png"
+          alt="NRSC Logo"
+          class="logo"
+        />
+        <div class="organization-info">
+          <div class="organization-tagline">
+            Indian Space Research Organisation
+          </div>
+        </div>
+      </div>
+
+      <!-- Header Section -->
+      <div class="header">
+        <h1>INFORMATION REQUIRED</h1>
+        <div class="header-subtitle">Action Required for Your Application</div>
+      </div>
+
+      <!-- Content Section -->
+      <div class="content">
+        <div class="greeting">
+          Dear {{ student_name | default('Applicant') }},
+        </div>
+
+        <div class="intro-text">
+          Thank you for your interest in the
+          <strong>NRSC Student Program</strong>. We are currently processing
+          your application and require additional information to complete our
+          review process. Please provide the requested details by filling out
+          the attached Excel file and returning it to us.
+        </div>
+
+        <div class="application-id-section">
+          <div class="application-id-title">Your Application ID</div>
+          <div class="application-id">{{ student_id }}</div>
+        </div>
+
+        <div class="status-section">
+          <div class="status-title">
+            Application Status: Additional Information Required
+          </div>
+          <div class="status-description">
+            Your application is currently on hold pending receipt of the
+            required information. Once we receive your completed form, we will
+            proceed with the evaluation process.
+          </div>
+        </div>
+
+        <div class="action-required-section">
+          <div class="action-required-title">Required Actions</div>
+          <ol class="action-required-list">
+            <li>
+              Download the attached Excel file (.xls) from the link provided
+              below
+            </li>
+            <li>
+              Fill in all required fields with accurate and complete information
+            </li>
+            <li>
+              Save the completed file with your Application ID in the filename
+              (e.g., {{ student_id }}_StudentInfo.xls)
+            </li>
+            <li>
+              <strong
+                >Reply to this email with the completed Excel file as an
+                attachment</strong
+              >
+            </li>
+            <li>
+              Ensure your response email subject includes your Application ID:
+              {{ student_id }}
+            </li>
+          </ol>
+        </div>
+
+        <div class="file-access-section">
+          <div class="file-access-title">Download Required Form</div>
+          <a href="assets/NRSC_StudentInfo.xlsx" class="file-access-button">
+            Download Excel Form
+          </a>
+          <div class="file-info">
+            <strong>File Name:</strong> NRSC_StudentInfo.xlsx<br />
+            <strong>File Type:</strong> Microsoft Excel (.xlsx)<br />
+            <strong>File Size:</strong> ~60 KB
+          </div>
+        </div>
+
+        <div class="deadline-section">
+          <div class="deadline-title">Response Deadline</div>
+          <div class="deadline-date">
+            {{ deadline_date | default('DD/MM/YYYY') }}
+          </div>
+          <div class="deadline-note">
+            Please submit your completed form by the above date to avoid delays
+            in processing
+          </div>
+        </div>
+
+        <div class="intro-text">
+          <strong>Additional Notes:</strong><br />
+          <strong
+            >Please ensure that the the saved file follows the correct naming
+            convention</strong
+          >
+        </div>
+
+        <div class="contact-info">
+          <h3>Questions or Need Technical Support?</h3>
+          <p>
+            If you experience any issues downloading the form or have questions
+            about the required information, please contact us:
+          </p>
+          <p>
+            <a href="mailto:student@nrsc.gov.in" class="contact-email">
+              student@nrsc.gov.in
+            </a>
+          </p>
+          <p>
+            <strong>Email Subject Format:</strong> [{{ student_id }}] - Query:
+            Your Question
+          </p>
+          <p>Office Hours: Monday to Friday, 9:00 AM to 5:30 PM IST</p>
+        </div>
+
+        <div class="signature">
+          <div class="signature-title">Best regards,</div>
+          <div class="signature-org">NRSC Training and Outreach Team</div>
+          <div class="signature-org">National Remote Sensing Centre</div>
+        </div>
+      </div>
+
+      <!-- Footer Section -->
+      <div class="footer">
+        <div class="footer-title">National Remote Sensing Centre</div>
+        <div class="footer-divider"></div>
+        <p>Indian Space Research Organisation (ISRO)</p>
+        <p>
+          This is an automated message. Please reply with the completed form
+          attached.
+        </p>
+        <p>For support, contact: student@nrsc.gov.in</p>
+      </div>
+    </div>
+  </body>
+</html>

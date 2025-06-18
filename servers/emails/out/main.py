@@ -7,8 +7,11 @@ import os
 from dotenv import load_dotenv
 import logging
 from typing import List, Optional
+from pathlib import Path
+from datetime import datetime, timedelta
 
-load_dotenv()
+
+load_dotenv(dotenv_path=Path(__file__).parent.parent.parent / '.env')
 
 app = FastAPI(title="Email FastAPI Server", description="API for sending outgoing communications with MinIO integration")
 
@@ -142,6 +145,38 @@ async def send_template_email_application_validated(request: TemplateEmailReciev
         logger.error(f"Error sending template email: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
+@app.post("/email/template/information_required", response_model=dict, dependencies=[Depends(get_api_key)])
+async def send_template_email_information_required(request: TemplateEmailRecieved):
+    """Send an email using a predefined template with optional MinIO presigned URL."""
+    try: 
+        # Use default subject if none provided
+        subject = request.subject or 'Information Required by NRSC Training and Outreach Team'
+        
+        # Render template
+        body = render_template(
+            template_name='information_required.html',
+            subject=subject,
+            student_name=request.student_name,
+            student_id=request.student_id,
+            deadline_date=(datetime.now() + timedelta(days=7)).strftime('%d/%m/%Y')
+            )
+
+        # Send email
+        result = send_email(
+            recipient=request.recipient,
+            subject=subject,
+            body=body,
+            is_html=True,
+        )
+        
+        logger.info(f"Template email sent successfully to {request.recipient}")
+        return result
+        
+    except Exception as e:
+        logger.error(f"Error sending template email: {str(e)}")
+        raise HTTPException(status_code=500, detail=str(e))
+    
+
 
 @app.post("/email/template/validation_failed", response_model=dict, dependencies=[Depends(get_api_key)])
 async def send_template_email_validation_failed(request: TemplateEmailRequest):
