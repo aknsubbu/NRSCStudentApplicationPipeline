@@ -18,6 +18,8 @@ import time
 from contextlib import contextmanager
 import hashlib
 
+#  TODO: Add a route to fetch the information required response and pass it to manager
+
 # Load environment variables
 load_dotenv()
 

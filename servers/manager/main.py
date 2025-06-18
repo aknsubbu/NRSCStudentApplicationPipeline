@@ -29,6 +29,16 @@ app = FastAPI(
     description="Orchestrates email processing with notifications and AI validation"
 )
 
+#  TODO: Add a route to store student details in a DB when received
+#  TODO: Add a route to fetch student details from the DB when the information required response is received
+#  TODO: Add a route to store the information required response in the DB
+#  TODO: Add a route to pass the documents from the Doc Store and the details from the DB to the AI server for validation
+#  TODO: Add a route to store the validation result in the DB
+#  TODO: Add a route to store student profile in the DB which is from the AI Server
+#  TODO: Add a route to send a email to admin for screening
+#  TODO: Add the DB control fns to the manager
+#  TODO: Complete the flow of the application
+
 # Configuration
 API_KEY = os.getenv("API_KEY", "your-secret-api-key-123")
 DB_SERVER_URL = os.getenv("DB_SERVER_URL", "http://localhost:8000")
@@ -480,6 +490,37 @@ async def send_validation_result_email(student_email: str, student_name: str, st
         logger.error(error_msg)
         return EmailNotificationResult(sent=False, email_type="validation_result", recipient=student_email, error=error_msg)
 
+async def send_information_required_email(student_email: str, student_name: str, student_id: str) -> EmailNotificationResult:
+    """Send information required email"""
+    if not ENABLE_EMAIL_NOTIFICATIONS:
+        return EmailNotificationResult(sent=False, email_type="information_required", recipient=student_email, error="Notifications disabled")
+    
+    try:
+        headers = {"X-API-Key": API_KEY}
+        
+        email_data = {
+            "recipient": student_email,
+            "student_name": student_name,
+            "student_id": student_id,
+        }
+        
+        async with httpx.AsyncClient(timeout=30.0) as client:
+            response = await client.post(
+                f"{EMAIL_OUT_SERVER_URL}/email/template/information_required",
+                json=email_data,
+                headers=headers
+            )
+            response.raise_for_status()
+            
+        logger.info(f"Information required email sent to {student_email}")
+        return EmailNotificationResult(sent=True, email_type="information_required", recipient=student_email)
+        
+    except Exception as e:
+        error_msg = f"Failed to send information required email: {str(e)}"
+        logger.error(error_msg)
+        return EmailNotificationResult(sent=False, email_type="information_required", recipient=student_email, error=error_msg)
+    
+    
 # Application Logging
 async def log_application_to_file(result: ApplicationProcessingResult) -> bool:
     """Log application details to validated_applications.txt"""
@@ -737,177 +778,177 @@ async def health_check():
     
     return health_status
 
-@app.post("/process-email/", response_model=ApplicationProcessingResult, dependencies=[Depends(get_api_key)])
-async def process_email(email_data: EmailData):
-    """Process a single application email"""
-    return await process_application_email(email_data)
+# @app.post("/process-email/", response_model=ApplicationProcessingResult, dependencies=[Depends(get_api_key)])
+# async def process_email(email_data: EmailData):
+#     """Process a single application email"""
+#     return await process_application_email(email_data)
 
-@app.post("/process-batch/", response_model=BatchProcessingReport, dependencies=[Depends(get_api_key)])
-async def process_batch(email_batch: EmailBatch):
-    """Process a batch of application emails"""
-    return await process_application_batch(email_batch)
+# @app.post("/process-batch/", response_model=BatchProcessingReport, dependencies=[Depends(get_api_key)])
+# async def process_batch(email_batch: EmailBatch):
+#     """Process a batch of application emails"""
+#     return await process_application_batch(email_batch)
 
-@app.get("/poll-and-process/", response_model=BatchProcessingReport, dependencies=[Depends(get_api_key)])
-async def poll_and_process():
-    """Poll emails from email service and process them"""
-    try:
-        headers = {"X-API-Key": API_KEY}
+# @app.get("/poll-and-process/", response_model=BatchProcessingReport, dependencies=[Depends(get_api_key)])
+# async def poll_and_process():
+#     """Poll emails from email service and process them"""
+#     try:
+#         headers = {"X-API-Key": API_KEY}
         
-        # Get emails from poller
-        async with httpx.AsyncClient(timeout=60.0) as client:
-            response = await client.get(
-                f"{EMAIL_POLLER_URL}/application-emails",
-                headers=headers
-            )
-            response.raise_for_status()
-            email_data = response.json()
+#         # Get emails from poller
+#         async with httpx.AsyncClient(timeout=60.0) as client:
+#             response = await client.get(
+#                 f"{EMAIL_POLLER_URL}/application-emails",
+#                 headers=headers
+#             )
+#             response.raise_for_status()
+#             email_data = response.json()
         
-        # Convert to EmailBatch model
-        email_batch = EmailBatch(**email_data)
+#         # Convert to EmailBatch model
+#         email_batch = EmailBatch(**email_data)
         
-        logger.info(f"Polled {email_batch.total_emails} emails, {email_batch.application_emails} are applications")
+#         logger.info(f"Polled {email_batch.total_emails} emails, {email_batch.application_emails} are applications")
         
-        # Process the batch
-        result = await process_application_batch(email_batch)
+#         # Process the batch
+#         result = await process_application_batch(email_batch)
         
-        logger.info(
-            f"Processed {result.total_processed} emails: "
-            f"{result.successful} successful, {result.failed} failed, "
-            f"{result.validation_passed} passed validation, {result.validation_failed} failed validation"
-        )
+#         logger.info(
+#             f"Processed {result.total_processed} emails: "
+#             f"{result.successful} successful, {result.failed} failed, "
+#             f"{result.validation_passed} passed validation, {result.validation_failed} failed validation"
+#         )
         
-        return result
+#         return result
         
-    except Exception as e:
-        logger.error(f"Error in poll-and-process: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to poll and process: {str(e)}")
+#     except Exception as e:
+#         logger.error(f"Error in poll-and-process: {e}")
+#         raise HTTPException(status_code=500, detail=f"Failed to poll and process: {str(e)}")
 
-@app.get("/applications/", dependencies=[Depends(get_api_key)])
-async def get_applications(status: Optional[ValidationStatus] = None, limit: int = 100):
-    """Get logged applications from file"""
-    try:
-        if not VALIDATED_APPLICATIONS_FILE.exists():
-            return {"applications": [], "total": 0}
+# @app.get("/applications/", dependencies=[Depends(get_api_key)])
+# async def get_applications(status: Optional[ValidationStatus] = None, limit: int = 100):
+#     """Get logged applications from file"""
+#     try:
+#         if not VALIDATED_APPLICATIONS_FILE.exists():
+#             return {"applications": [], "total": 0}
         
-        applications = []
-        with open(VALIDATED_APPLICATIONS_FILE, "r", encoding="utf-8") as f:
-            for line in f:
-                try:
-                    app = json.loads(line.strip())
-                    if status is None or app.get("validation_status") == status:
-                        applications.append(app)
-                except json.JSONDecodeError:
-                    continue
+#         applications = []
+#         with open(VALIDATED_APPLICATIONS_FILE, "r", encoding="utf-8") as f:
+#             for line in f:
+#                 try:
+#                     app = json.loads(line.strip())
+#                     if status is None or app.get("validation_status") == status:
+#                         applications.append(app)
+#                 except json.JSONDecodeError:
+#                     continue
         
-        # Sort by timestamp (newest first)
-        applications.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
+#         # Sort by timestamp (newest first)
+#         applications.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
         
-        return {
-            "applications": applications[:limit],
-            "total": len(applications),
-            "filtered_by": status
-        }
+#         return {
+#             "applications": applications[:limit],
+#             "total": len(applications),
+#             "filtered_by": status
+#         }
         
-    except Exception as e:
-        logger.error(f"Error reading applications: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to read applications: {str(e)}")
+#     except Exception as e:
+#         logger.error(f"Error reading applications: {e}")
+#         raise HTTPException(status_code=500, detail=f"Failed to read applications: {str(e)}")
 
-@app.get("/applications/{student_id}", dependencies=[Depends(get_api_key)])
-async def get_application_by_student_id(student_id: str):
-    """Get specific application by student ID"""
-    try:
-        if not VALIDATED_APPLICATIONS_FILE.exists():
-            raise HTTPException(status_code=404, detail="Application not found")
+# @app.get("/applications/{student_id}", dependencies=[Depends(get_api_key)])
+# async def get_application_by_student_id(student_id: str):
+#     """Get specific application by student ID"""
+#     try:
+#         if not VALIDATED_APPLICATIONS_FILE.exists():
+#             raise HTTPException(status_code=404, detail="Application not found")
         
-        with open(VALIDATED_APPLICATIONS_FILE, "r", encoding="utf-8") as f:
-            for line in f:
-                try:
-                    app = json.loads(line.strip())
-                    if app.get("student_id") == student_id:
-                        return app
-                except json.JSONDecodeError:
-                    continue
+#         with open(VALIDATED_APPLICATIONS_FILE, "r", encoding="utf-8") as f:
+#             for line in f:
+#                 try:
+#                     app = json.loads(line.strip())
+#                     if app.get("student_id") == student_id:
+#                         return app
+#                 except json.JSONDecodeError:
+#                     continue
         
-        raise HTTPException(status_code=404, detail="Application not found")
+#         raise HTTPException(status_code=404, detail="Application not found")
         
-    except HTTPException:
-        raise
-    except Exception as e:
-        logger.error(f"Error reading application: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to read application: {str(e)}")
+#     except HTTPException:
+#         raise
+#     except Exception as e:
+#         logger.error(f"Error reading application: {e}")
+#         raise HTTPException(status_code=500, detail=f"Failed to read application: {str(e)}")
 
-@app.get("/stats/", dependencies=[Depends(get_api_key)])
-async def get_processing_stats():
-    """Get processing statistics"""
-    try:
-        stats = {
-            "total_applications": 0,
-            "validation_passed": 0,
-            "validation_failed": 0,
-            "validation_error": 0,
-            "storage_success": 0,
-            "notifications_sent": 0,
-            "average_processing_time": 0.0
-        }
+# @app.get("/stats/", dependencies=[Depends(get_api_key)])
+# async def get_processing_stats():
+#     """Get processing statistics"""
+#     try:
+#         stats = {
+#             "total_applications": 0,
+#             "validation_passed": 0,
+#             "validation_failed": 0,
+#             "validation_error": 0,
+#             "storage_success": 0,
+#             "notifications_sent": 0,
+#             "average_processing_time": 0.0
+#         }
         
-        if not VALIDATED_APPLICATIONS_FILE.exists():
-            return stats
+#         if not VALIDATED_APPLICATIONS_FILE.exists():
+#             return stats
         
-        processing_times = []
+#         processing_times = []
         
-        with open(VALIDATED_APPLICATIONS_FILE, "r", encoding="utf-8") as f:
-            for line in f:
-                try:
-                    app = json.loads(line.strip())
-                    stats["total_applications"] += 1
+#         with open(VALIDATED_APPLICATIONS_FILE, "r", encoding="utf-8") as f:
+#             for line in f:
+#                 try:
+#                     app = json.loads(line.strip())
+#                     stats["total_applications"] += 1
                     
-                    validation_status = app.get("validation_status")
-                    if validation_status == "passed":
-                        stats["validation_passed"] += 1
-                    elif validation_status == "failed":
-                        stats["validation_failed"] += 1
-                    elif validation_status == "error":
-                        stats["validation_error"] += 1
+#                     validation_status = app.get("validation_status")
+#                     if validation_status == "passed":
+#                         stats["validation_passed"] += 1
+#                     elif validation_status == "failed":
+#                         stats["validation_failed"] += 1
+#                     elif validation_status == "error":
+#                         stats["validation_error"] += 1
                     
-                    if app.get("storage_success"):
-                        stats["storage_success"] += 1
+#                     if app.get("storage_success"):
+#                         stats["storage_success"] += 1
                     
-                    notifications = app.get("notifications_sent", {})
-                    stats["notifications_sent"] += len([v for v in notifications.values() if v])
+#                     notifications = app.get("notifications_sent", {})
+#                     stats["notifications_sent"] += len([v for v in notifications.values() if v])
                     
-                    if app.get("processing_time"):
-                        processing_times.append(app["processing_time"])
+#                     if app.get("processing_time"):
+#                         processing_times.append(app["processing_time"])
                         
-                except json.JSONDecodeError:
-                    continue
+#                 except json.JSONDecodeError:
+#                     continue
         
-        if processing_times:
-            stats["average_processing_time"] = sum(processing_times) / len(processing_times)
+#         if processing_times:
+#             stats["average_processing_time"] = sum(processing_times) / len(processing_times)
         
-        return stats
+#         return stats
         
-    except Exception as e:
-        logger.error(f"Error calculating stats: {e}")
-        raise HTTPException(status_code=500, detail=f"Failed to calculate stats: {str(e)}")
+#     except Exception as e:
+#         logger.error(f"Error calculating stats: {e}")
+#         raise HTTPException(status_code=500, detail=f"Failed to calculate stats: {str(e)}")
 
-if __name__ == "__main__":
-    import uvicorn
+# if __name__ == "__main__":
+#     import uvicorn
     
-    # Create necessary directories
-    Path("temp_email_data").mkdir(exist_ok=True)
+#     # Create necessary directories
+#     Path("temp_email_data").mkdir(exist_ok=True)
     
-    # Log configuration
-    logger.info("=" * 60)
-    logger.info("Email Processing Manager Starting")
-    logger.info("=" * 60)
-    logger.info(f"Configuration:")
-    logger.info(f"  API_KEY: {'***' if API_KEY else 'NOT SET'}")
-    logger.info(f"  Email Poller URL: {EMAIL_POLLER_URL}")
-    logger.info(f"  MinIO Storage URL: {MINIO_SERVER_URL}")
-    logger.info(f"  Email Notifications: {'ENABLED' if ENABLE_EMAIL_NOTIFICATIONS else 'DISABLED'}")
-    logger.info(f"  AI Validation: {'ENABLED' if ENABLE_AI_VALIDATION else 'DISABLED'}")
-    logger.info(f"  Applications Log File: {VALIDATED_APPLICATIONS_FILE}")
-    logger.info("=" * 60)
+#     # Log configuration
+#     logger.info("=" * 60)
+#     logger.info("Email Processing Manager Starting")
+#     logger.info("=" * 60)
+#     logger.info(f"Configuration:")
+#     logger.info(f"  API_KEY: {'***' if API_KEY else 'NOT SET'}")
+#     logger.info(f"  Email Poller URL: {EMAIL_POLLER_URL}")
+#     logger.info(f"  MinIO Storage URL: {MINIO_SERVER_URL}")
+#     logger.info(f"  Email Notifications: {'ENABLED' if ENABLE_EMAIL_NOTIFICATIONS else 'DISABLED'}")
+#     logger.info(f"  AI Validation: {'ENABLED' if ENABLE_AI_VALIDATION else 'DISABLED'}")
+#     logger.info(f"  Applications Log File: {VALIDATED_APPLICATIONS_FILE}")
+#     logger.info("=" * 60)
     
-    # Run the FastAPI app
-    uvicorn.run("main:app", host="0.0.0.0", port=8004, log_level="info",reload=True)
+#     # Run the FastAPI app
+#     uvicorn.run("main:app", host="0.0.0.0", port=8004, log_level="info",reload=True)
