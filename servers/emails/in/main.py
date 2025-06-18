@@ -66,15 +66,15 @@ class EmailConfig(BaseModel):
 DEFAULT_CONFIG = EmailConfig(
     imap_server=os.getenv("IMAP_SERVER", "imap.gmail.com"),
     username=os.getenv("EMAIL_USERNAME", ""),
-    password=os.getenv("EMAIL_PASSWORD", ""),
+    password=os.getenv("EMAIL_PASSWORD_IN", ""),
     folder=os.getenv("EMAIL_FOLDER", "INBOX"),
     processed_folder=os.getenv("PROCESSED_FOLDER", "Processed"),
     app_keywords=os.getenv("APP_KEYWORDS", "application,apply,job,position,vacancy").split(","),
-    max_emails=int(os.getenv("MAX_EMAILS", "10")),
+    max_emails=10,
     mark_as_read=os.getenv("MARK_AS_READ", "False").lower() == "true",
     move_processed=os.getenv("MOVE_PROCESSED", "True").lower() == "true",
     attachment_dir=os.getenv("ATTACHMENT_DIR", "attachments"),
-    timeout=int(os.getenv("IMAP_TIMEOUT", "30")),
+    timeout=60,
     include_raw_email=os.getenv("INCLUDE_RAW_EMAIL", "False").lower() == "true"
 )
 
@@ -225,6 +225,7 @@ def move_email(mail, email_id: str, source_folder: str, dest_folder: str) -> boo
     except Exception as e:
         logger.error(f"Error moving email {email_id}: {e}")
         return False
+
 
 def calculate_email_hash(email_message) -> str:
     """Calculate a unique hash for the email to prevent duplicates."""
@@ -767,4 +768,4 @@ if __name__ == "__main__":
     Path("output").mkdir(exist_ok=True)
     
     # Run the FastAPI app
-    uvicorn.run(app, host="0.0.0.0", port=8002, log_level="info")
+    uvicorn.run("main:app", host="0.0.0.0", port=8002, log_level="info",reload=True)

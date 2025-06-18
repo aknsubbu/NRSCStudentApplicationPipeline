@@ -29,3 +29,9 @@ class TemplateEmailRecieved(BaseModel):
     expires: Optional[int] = Field(3600, ge=1, le=604800)
     application_id: Optional[str] = None
     student_name: Optional[str] = None
+    
+class TemplateEmailInformationRequired(BaseModel):
+    recipient: EmailStr
+    subject: Optional[str] = None
+    student_id: Optional[str] = None
+    deadline_date: Optional[str] = None

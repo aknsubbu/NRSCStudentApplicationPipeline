@@ -9,8 +9,9 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from dotenv import load_dotenv
 from datetime import datetime
+from pathlib import Path
 
-load_dotenv()
+load_dotenv(dotenv_path=Path(__file__).parent.parent / '.env')
 
 #Uncomment the following lines to enable email functionality
 # import smtplib
@@ -128,4 +129,4 @@ async def generate_presigned_url_endpoint(url: PresignedUrl):
 
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
