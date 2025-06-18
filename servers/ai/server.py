@@ -9,6 +9,7 @@ import io
 from PIL import Image
 import base64
 import re
+from datetime import datetime, timedelta
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -114,6 +115,54 @@ def extract_text_from_pdf(file: UploadFile) -> tuple[str, bool]:
     except Exception as e:
         logger.error(f"Error extracting text from PDF: {str(e)}")
         return "", False
+    
+def extract_skills_and_course_info(text: str = None, images: list = None) -> dict:
+    """Extract detailed skills, projects, and course information from resume"""
+    prompt = (
+        "Analyze this resume and extract detailed information about the candidate's capabilities.\n"
+        "Focus on:\n"
+        "1. Technical skills mentioned\n"
+        "2. Programming languages\n"
+        "3. Projects and their descriptions\n"
+        "4. Course/degree information\n"
+        "5. Tools and technologies used\n"
+        "6. Domain expertise (web dev, mobile, AI/ML, data science, etc.)\n\n"
+        "Return your response in this exact format:\n"
+        "TECHNICAL_SKILLS: [list of technical skills]\n"
+        "PROGRAMMING_LANGUAGES: [list of programming languages]\n"
+        "PROJECTS: [brief description of each project]\n"
+        "COURSE_DEGREE: [course name and specialization]\n"
+        "TOOLS_TECHNOLOGIES: [frameworks, tools, databases, etc.]\n"
+        "DOMAIN_EXPERTISE: [areas of expertise like web development, AI/ML, etc.]\n"
+        "SUITABILITY_ASSESSMENT: [brief assessment of candidate's technical readiness]"
+        "Use the information provided to generate a comprehensive analysis in around 200 characterss.\n"
+    )
+    
+    try:
+        if text and is_text_extractable(text):
+            full_prompt = f"{prompt}\n\nResume content:\n{text}"
+            response = model.generate_content(full_prompt)
+            response_text = response.text.strip()
+        elif images:
+            response_text = process_document_with_vision(images, prompt)
+        else:
+            return {"error": "No content to analyze"}
+        
+        return {
+            "technical_skills": extract_field(response_text, "TECHNICAL_SKILLS"),
+            "programming_languages": extract_field(response_text, "PROGRAMMING_LANGUAGES"),
+            # "projects": extract_field(response_text, "PROJECTS"),
+            "course_degree": extract_field(response_text, "COURSE_DEGREE"),
+            "tools_technologies": extract_field(response_text, "TOOLS_TECHNOLOGIES"),
+            "domain_expertise": extract_field(response_text, "DOMAIN_EXPERTISE"),
+            "suitability_assessment": extract_field(response_text, "SUITABILITY_ASSESSMENT"),
+            # "full_analysis": response_text
+        }
+    except Exception as e:
+        logger.error(f"Error extracting skills and course info: {str(e)}")
+        return {
+            "error": f"Failed to extract skills information: {str(e)}"
+        }
 
 def process_document_with_vision(images: list, prompt: str) -> str:
     """Process document images using Gemini Vision"""
@@ -340,8 +389,10 @@ def validate_cover_letter_with_marks(text: str = None, images: list = None) -> d
             "feedback": f"Error validating cover letter: {str(e)}"
         }
 
-def validate_lor(text: str = None, images: list = None) -> dict:
-    """Validate letter of recommendation using text or vision"""
+#---------------------****THIS IS FOR CHECKING THE EXACT DATES IN LOR****--------------------------#
+'''
+def validate_lor(text: str = None, images: list = None, application_date: str = None) -> dict:
+    """Validate letter of recommendation using text or vision with date validation"""
     prompt = (
         "You are validating a letter of recommendation (LOR) or official document for an internship application.\n"
         "Critical Requirements:\n"
@@ -353,13 +404,18 @@ def validate_lor(text: str = None, images: list = None) -> dict:
         "3. Document can be one of:\n"
            "   - Letter of Recommendation\n"
            "   - Bonafide Certificate\n"
-           "   - Any official endorsement letter\n\n"
+           "   - Any official endorsement letter\n"
+        "4. Must mention internship start date and end date\n"
+        "5. Dates should be clearly specified (look for phrases like 'from [date] to [date]', 'duration', 'period', etc.)\n\n"
         "Return your response in this exact format:\n"
         "VALID: [true/false]\n"
-        "FEEDBACK: [your detailed feedback]\n"
+        
         "LETTERHEAD: [yes/no]\n"
         "AUTHORITY: [title and name of signing authority]\n"
-        "DOCUMENT_TYPE: [type of document detected]"
+        "START_DATE: [Mentioned start date]\n"
+        "END_DATE: [Mentioned end date]\n"
+        "DATES_MENTIONED: [true/false - whether both start and end dates are clearly mentioned]"
+        "FEEDBACK: [your detailed feedback]\n"
     )
     
     try:
@@ -372,19 +428,332 @@ def validate_lor(text: str = None, images: list = None) -> dict:
         else:
             return {"valid": False, "feedback": "No content to validate"}
         
+        # Extract date information
+        start_date_str = extract_field(response_text, "START_DATE")
+        end_date_str = extract_field(response_text, "END_DATE")
+        dates_mentioned_str = extract_field(response_text, "DATES_MENTIONED")
+        dates_mentioned = 'true' in dates_mentioned_str.lower()
+        
+        # Basic LOR validation
         valid_line = next((line for line in response_text.split('\n') 
                           if line.lower().startswith('valid:')), '')
-        valid = 'true' in valid_line.lower() and 'false' not in valid_line.lower()
+        basic_valid = 'true' in valid_line.lower() and 'false' not in valid_line.lower()
+        
+        # Date validation
+        date_validation_result = {"valid": True, "feedback": ""}
+        
+        if not dates_mentioned:
+            date_validation_result = {
+                "valid": False, 
+                "feedback": "Internship start date and end date must be mentioned in LOR"
+            }
+        elif application_date:
+            # Parse application date and validate 30-day gap
+            try:
+                app_date = datetime.strptime(application_date, "%Y-%m-%d")
+                required_start_date = app_date + timedelta(days=30)
+                
+                # Try to parse the start date from LOR
+                start_date_parsed = None
+                if start_date_str and start_date_str != "Not mentioned":
+                    # Try multiple date formats
+                    date_formats = ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d", 
+                                  "%B %d, %Y", "%d %B %Y", "%b %d, %Y", "%d %b %Y"]
+                    
+                    for fmt in date_formats:
+                        try:
+                            start_date_parsed = datetime.strptime(start_date_str.strip(), fmt)
+                            break
+                        except ValueError:
+                            continue
+                
+                if start_date_parsed:
+                    if start_date_parsed < required_start_date:
+                        date_validation_result = {
+                            "valid": False,
+                            "feedback": f"Internship start date ({start_date_str}) must be at least 30 days after application date ({application_date}). Required start date: {required_start_date.strftime('%Y-%m-%d')}"
+                        }
+                else:
+                    date_validation_result = {
+                        "valid": False,
+                        "feedback": f"Could not parse start date format: {start_date_str}. Please use a standard date format."
+                    }
+                    
+            except ValueError:
+                date_validation_result = {
+                    "valid": False,
+                    "feedback": f"Invalid application date format: {application_date}. Expected format: YYYY-MM-DD"
+                }
+        
+        # Overall validation
+        overall_valid = basic_valid and dates_mentioned and date_validation_result["valid"]
+        
+        # Combine feedback
+        feedback_parts = [response_text]
+        if not date_validation_result["valid"]:
+            feedback_parts.append(f"Date Validation Error: {date_validation_result['feedback']}")
         
         return {
-            "valid": valid,
-            "feedback": response_text
+            "valid": overall_valid,
+            "dates_mentioned": dates_mentioned,
+            "start_date": start_date_str,
+            "end_date": end_date_str,
+            "date_validation": date_validation_result,
+            "feedback": "\n".join(feedback_parts),
+            "basic_lor_valid": basic_valid
         }
     except Exception as e:
         return {
             "valid": False,
             "feedback": f"Error validating letter of recommendation: {str(e)}"
         }
+'''
+#--------------------------------------------------------------------------------------------------#
+
+#---------------------****THIS IS FOR CHECKING THE MONTH VALIDIY IN LOR****------------------------#
+'''
+def validate_lor(text: str = None, images: list = None) -> dict:
+    """Validate letter of recommendation using text or vision with automatic date validation"""
+    prompt = (
+        "You are validating a letter of recommendation (LOR) or official document for an internship application.\n"
+        "Critical Requirements:\n"
+        "1. Must have official letterhead of the institution\n"
+        "2. Must have a signature from any one of these authorities:\n"
+           "   - Head of Department\n"
+           "   - Dean\n"
+           "   - Principal\n"
+        "3. Document can be one of:\n"
+           "   - Letter of Recommendation\n"
+           "   - Bonafide Certificate\n"
+           "   - Any official endorsement letter\n"
+        "4. Must mention internship start date and end date\n"
+        "5. Dates should be clearly specified (look for phrases like 'from [date] to [date]', 'duration', 'period', etc.)\n\n"
+        "Return your response in this exact format:\n"
+        "VALID: [true/false]\n"
+        "FEEDBACK: [your detailed feedback]\n"
+        "LETTERHEAD: [yes/no]\n"
+        "AUTHORITY: [title and name of signing authority]\n"
+        "START_DATE: [internship start date mentioned in document or 'Not mentioned']\n"
+        "END_DATE: [internship end date mentioned in document or 'Not mentioned']\n"
+        "DATES_MENTIONED: [true/false - whether both start and end dates are clearly mentioned]"
+    )
+    
+    try:
+        if text and is_text_extractable(text):
+            full_prompt = f"{prompt}\n\nDocument content:\n{text}"
+            response = model.generate_content(full_prompt)
+            response_text = response.text.strip()
+        elif images:
+            response_text = process_document_with_vision(images, prompt)
+        else:
+            return {"valid": False, "feedback": "No content to validate"}
+        
+        # Extract date information
+        start_date_str = extract_field(response_text, "START_DATE")
+        end_date_str = extract_field(response_text, "END_DATE")
+        dates_mentioned_str = extract_field(response_text, "DATES_MENTIONED")
+        dates_mentioned = 'true' in dates_mentioned_str.lower()
+        
+        # Basic LOR validation
+        valid_line = next((line for line in response_text.split('\n') 
+                          if line.lower().startswith('valid:')), '')
+        basic_valid = 'true' in valid_line.lower() and 'false' not in valid_line.lower()
+        
+        # Automatic date validation using current system time
+        date_validation_result = {"valid": True, "feedback": ""}
+        current_date = datetime.now()
+        
+        if not dates_mentioned:
+            date_validation_result = {
+                "valid": False, 
+                "feedback": "Internship start date and end date must be mentioned in LOR"
+            }
+        else:
+            # Parse and validate start date
+            start_date_parsed = None
+            if start_date_str and start_date_str != "Not mentioned":
+                # Try multiple date formats
+                date_formats = ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d", 
+                              "%B %d, %Y", "%d %B %Y", "%b %d, %Y", "%d %b %Y",
+                              "%B %Y", "%b %Y"]  # Added month-year formats
+                
+                for fmt in date_formats:
+                    try:
+                        start_date_parsed = datetime.strptime(start_date_str.strip(), fmt)
+                        break
+                    except ValueError:
+                        continue
+            
+            if start_date_parsed:
+                # Check if start month is at least next month from current month
+                current_month = current_date.month
+                current_year = current_date.year
+                start_month = start_date_parsed.month
+                start_year = start_date_parsed.year
+                
+                # Calculate if start date is in next month or later
+                months_difference = (start_year - current_year) * 12 + (start_month - current_month)
+                
+                if months_difference < 1:
+                    current_month_name = current_date.strftime("%B %Y")
+                    start_month_name = start_date_parsed.strftime("%B %Y")
+                    date_validation_result = {
+                        "valid": False,
+                        "feedback": f"Internship start date ({start_month_name}) must be at least next month from current month ({current_month_name})"
+                    }
+                else:
+                    date_validation_result = {
+                        "valid": True,
+                        "feedback": f"Start date validation passed. Internship starts in {start_date_parsed.strftime('%B %Y')}"
+                    }
+            else:
+                date_validation_result = {
+                    "valid": False,
+                    "feedback": f"Could not parse start date format: '{start_date_str}'. Please use a standard date format."
+                }
+        
+        # Overall validation
+        overall_valid = basic_valid and dates_mentioned and date_validation_result["valid"]
+        
+        # Combine feedback
+        feedback_parts = [response_text]
+        if not date_validation_result["valid"]:
+            feedback_parts.append(f"Date Validation Error: {date_validation_result['feedback']}")
+        elif date_validation_result["feedback"]:
+            feedback_parts.append(date_validation_result["feedback"])
+        
+        return {
+            "valid": overall_valid,
+            "feedback": "\n".join(feedback_parts),
+            "dates_mentioned": dates_mentioned,
+            "start_date": start_date_str,
+            "end_date": end_date_str,
+            "date_validation": date_validation_result,
+            "basic_lor_valid": basic_valid,
+            "current_month": current_date.strftime("%B %Y"),
+            "validation_time": current_date.strftime("%Y-%m-%d %H:%M:%S")
+        }
+    except Exception as e:
+        return {
+            "valid": False,
+            "feedback": f"Error validating letter of recommendation: {str(e)}"
+        }
+'''
+#--------------------------------------------------------------------------------------------------#
+def validate_lor(text: str = None, images: list = None) -> dict:
+    """Validate letter of recommendation using text or vision with automatic date validation"""
+    prompt = (
+        "You are validating a letter of recommendation (LOR) or official document for an internship application.\n"
+        "Critical Requirements:\n"
+        "1. Must have official letterhead of the institution\n"
+        "2. Must have a signature from any one of these authorities:\n"
+           "   - Head of Department\n"
+           "   - Dean\n"
+           "   - Principal\n"
+        "3. Document can be one of:\n"
+           "   - Letter of Recommendation\n"
+           "   - Bonafide Certificate\n"
+           "   - Any official endorsement letter\n"
+        "4. Must mention internship start date and end date\n"
+        "5. Dates should be clearly specified (look for phrases like 'from [date] to [date]', 'duration', 'period', etc.)\n\n"
+        "Return your response in this exact format:\n"
+        "VALID: [true/false]\n"
+        "FEEDBACK: [your detailed feedback]\n"
+        "LETTERHEAD: [yes/no]\n"
+        "AUTHORITY: [title and name of signing authority]\n"
+        "START_DATE: [internship start date mentioned in document or 'Not mentioned']\n"
+        "END_DATE: [internship end date mentioned in document or 'Not mentioned']\n"
+        "DATES_MENTIONED: [true/false - whether both start and end dates are clearly mentioned]"
+    )
+    
+    try:
+        if text and is_text_extractable(text):
+            full_prompt = f"{prompt}\n\nDocument content:\n{text}"
+            response = model.generate_content(full_prompt)
+            response_text = response.text.strip()
+        elif images:
+            response_text = process_document_with_vision(images, prompt)
+        else:
+            return {"valid": False, "feedback": "No content to validate", "issues": ["No content to validate"]}
+        
+        # Extract date information
+        start_date_str = extract_field(response_text, "START_DATE")
+        end_date_str = extract_field(response_text, "END_DATE")
+        dates_mentioned_str = extract_field(response_text, "DATES_MENTIONED")
+        dates_mentioned = 'true' in dates_mentioned_str.lower()
+        
+        # Basic LOR validation
+        valid_line = next((line for line in response_text.split('\n') 
+                          if line.lower().startswith('valid:')), '')
+        basic_valid = 'true' in valid_line.lower() and 'false' not in valid_line.lower()
+        
+        # Get current date
+        current_date = datetime.now()
+        current_month = current_date.month
+        current_year = current_date.year
+        
+        # Date validation with detailed issues tracking
+        issues = []
+        date_validation_valid = True
+        
+        if not dates_mentioned:
+            issues.append("Internship start date and end date not mentioned in LOR")
+            date_validation_valid = False
+        else:
+            # Parse and validate start date
+            start_date_parsed = None
+            if start_date_str and start_date_str != "Not mentioned":
+                # Try multiple date formats
+                date_formats = ["%Y-%m-%d", "%d-%m-%Y", "%d/%m/%Y", "%Y/%m/%d", 
+                              "%B %d, %Y", "%d %B %Y", "%b %d, %Y", "%d %b %Y",
+                              "%B %Y", "%b %Y"]  # Added month-year formats
+                
+                for fmt in date_formats:
+                    try:
+                        start_date_parsed = datetime.strptime(start_date_str.strip(), fmt)
+                        break
+                    except ValueError:
+                        continue
+                
+                if start_date_parsed:
+                    start_month = start_date_parsed.month
+                    start_year = start_date_parsed.year
+                    
+                    # Check if start date is at least next month
+                    if start_year < current_year or (start_year == current_year and start_month <= current_month):
+                        issues.append(f"Internship start date ({start_date_str}) must be at least next month from application date. Current: {current_date.strftime('%B %Y')}")
+                        date_validation_valid = False
+                else:
+                    issues.append(f"Could not parse start date format: {start_date_str}")
+                    date_validation_valid = False
+            else:
+                issues.append("Start date not mentioned in LOR")
+                date_validation_valid = False
+        
+        # Check basic LOR requirements
+        if not basic_valid:
+            issues.append("LOR does not meet basic requirements (letterhead, authority signature, proper format)")
+        
+        # Overall validation
+        overall_valid = basic_valid and dates_mentioned and date_validation_valid
+        
+        return {
+            "valid": overall_valid,
+            "feedback": response_text,
+            "issues": issues,
+            "dates_mentioned": dates_mentioned,
+            "start_date": start_date_str,
+            "end_date": end_date_str,
+            "basic_lor_valid": basic_valid,
+            "date_validation_valid": date_validation_valid
+        }
+    except Exception as e:
+        return {
+            "valid": False,
+            "feedback": f"Error validating letter of recommendation: {str(e)}",
+            "issues": [f"Error validating LOR: {str(e)}"]
+        }
+
 
 def validate_marksheet_for_backlogs(text: str = None, images: list = None, class_level: str = "10") -> dict:
     """Validate marksheet specifically checking for backlogs only"""
@@ -506,67 +875,145 @@ def validate_all_marksheets_for_backlogs(class_10_file: UploadFile, class_12_fil
         }
     }
 
-def evaluate_overall_application(resume_result: dict, lor_result: dict, marksheet_result: dict) -> dict:
-    """Evaluate all documents with strict academic mark requirements"""
+def evaluate_overall_application(resume_result: dict, lor_result: dict, marksheet_result: dict, 
+                               resume_filename: str, lor_filename: str, 
+                               class_10_filename: str, class_12_filename: str, college_filename: str) -> dict:
+    """Evaluate all documents with strict academic mark requirements and track invalid files with detailed reasons"""
+    
     # Check if resume/cover letter has marks mentioned and meets criteria
     marks_mentioned = resume_result.get("marks_mentioned", False)
     academic_criteria_met = resume_result.get("academic_details", {}).get("meets_criteria", False)
     
-    # All conditions must be met
-    all_valid = (
-        resume_result["valid"] and  # Resume/cover letter valid with marks
-        lor_result["valid"] and     # LOR valid
-        marksheet_result["valid"] and  # No backlogs in marksheets
-        marks_mentioned and         # Marks must be mentioned
-        academic_criteria_met       # Marks must meet minimum criteria
-    )
+    # Track invalid documents and their reasons
+    invalid_documents = []
+    validation_details = {}
+    all_rejection_reasons = []  # Detailed reasons for rejection
     
-    # Generate detailed feedback
-    issues = []
-    if not marks_mentioned:
-        issues.append("Academic marks not mentioned in resume/cover letter")
-    if not academic_criteria_met:
-        issues.append("Academic marks do not meet minimum requirements")
+    # Check resume/cover letter validity
+    resume_valid = resume_result["valid"] and marks_mentioned and academic_criteria_met
+    validation_details["resume_cover_letter"] = {
+        "filename": resume_filename,
+        "valid": resume_valid,
+        "marks_mentioned": marks_mentioned,
+        "academic_details": resume_result.get("academic_details", {}),
+        "feedback": resume_result.get("feedback", ""),
+        "issues": []
+    }
+    
     if not resume_result["valid"]:
-        issues.append("Resume/cover letter validation failed")
-    if not lor_result["valid"]:
-        issues.append("Letter of recommendation validation failed")
-    if not marksheet_result["valid"]:
-        issues.append(f"Backlogs found in marksheets (Total: {marksheet_result.get('total_backlogs', 0)})")
+        validation_details["resume_cover_letter"]["issues"].append("Document validation failed")
+        all_rejection_reasons.append(f"{resume_filename}: Document validation failed")
+    if not marks_mentioned:
+        validation_details["resume_cover_letter"]["issues"].append("Academic marks not mentioned")
+        all_rejection_reasons.append(f"{resume_filename}: Academic marks not mentioned")
+    if not academic_criteria_met and marks_mentioned:
+        academic_details = resume_result.get("academic_details", {})
+        class_10 = academic_details.get("class_10", 0)
+        class_12 = academic_details.get("class_12", 0)
+        cgpa = academic_details.get("cgpa", 0)
+        
+        mark_issues = []
+        if class_10 > 0 and class_10 < 60:
+            mark_issues.append(f"Class 10: {class_10}% (required: 60%)")
+        if class_12 > 0 and class_12 < 60:
+            mark_issues.append(f"Class 12: {class_12}% (required: 60%)")
+        if cgpa > 0 and cgpa < 6.32:
+            mark_issues.append(f"CGPA: {cgpa} (required: 6.32)")
+        
+        if mark_issues:
+            issue_text = f"Academic marks below requirements: {', '.join(mark_issues)}"
+            validation_details["resume_cover_letter"]["issues"].append(issue_text)
+            all_rejection_reasons.append(f"{resume_filename}: {issue_text}")
     
+    if not resume_valid:
+        invalid_documents.append(resume_filename)
+    
+    # Check LOR validity with detailed issues
+    lor_valid = lor_result["valid"]
+    lor_issues = lor_result.get("issues", [])
+    validation_details["letter_of_recommendation"] = {
+        "filename": lor_filename,
+        "valid": lor_valid,
+        "feedback": lor_result.get("feedback", ""),
+        "issues": lor_issues
+    }
+    
+    if not lor_valid:
+        invalid_documents.append(lor_filename)
+        for issue in lor_issues:
+            all_rejection_reasons.append(f"{lor_filename}: {issue}")
+    
+    # Check marksheet validity
+    marksheet_valid = marksheet_result["valid"]
+    validation_details["marksheets"] = {
+        "filenames": {
+            "class_10": class_10_filename,
+            "class_12": class_12_filename,
+            "college": college_filename
+        },
+        "valid": marksheet_valid,
+        "total_backlogs": marksheet_result.get("total_backlogs", 0),
+        "details": marksheet_result.get("marksheet_results", {}),
+        "feedback": marksheet_result.get("overall_feedback", {}),
+        "issues": []
+    }
+    
+    # Check individual marksheet results
+    marksheet_results = marksheet_result.get("marksheet_results", {})
+    
+    if not marksheet_results.get("class_10", {}).get("valid", True):
+        backlogs_10 = marksheet_results.get("class_10", {}).get("backlogs", 0)
+        issue = f"Class 10 marksheet has {backlogs_10} backlog(s)"
+        validation_details["marksheets"]["issues"].append(issue)
+        all_rejection_reasons.append(f"{class_10_filename}: {issue}")
+        invalid_documents.append(class_10_filename)
+    
+    if not marksheet_results.get("class_12", {}).get("valid", True):
+        backlogs_12 = marksheet_results.get("class_12", {}).get("backlogs", 0)
+        issue = f"Class 12 marksheet has {backlogs_12} backlog(s)"
+        validation_details["marksheets"]["issues"].append(issue)
+        all_rejection_reasons.append(f"{class_12_filename}: {issue}")
+        invalid_documents.append(class_12_filename)
+    
+    if not marksheet_results.get("college", {}).get("valid", True):
+        backlogs_college = marksheet_results.get("college", {}).get("backlogs", 0)
+        issue = f"College marksheet has {backlogs_college} backlog(s)"
+        validation_details["marksheets"]["issues"].append(issue)
+        all_rejection_reasons.append(f"{college_filename}: {issue}")
+        invalid_documents.append(college_filename)
+    
+    # Remove duplicates from invalid_documents
+    invalid_documents = list(set(invalid_documents))
+    
+    # Overall validation
+    all_valid = resume_valid and lor_valid and marksheet_valid
     overall_status = "accepted" if all_valid else "rejected"
     
+    # Generate summary
     if all_valid:
-        summary = "Application meets all requirements: academic marks mentioned and meet criteria, no backlogs found."
+        summary = "Application meets all requirements: academic marks mentioned and meet criteria, dates valid, no backlogs found."
     else:
-        summary = f"Application rejected. Issues: {'; '.join(issues)}"
+        summary = f"Application rejected. {len(all_rejection_reasons)} specific issues found across {len(invalid_documents)} documents."
     
     return {
         "valid": all_valid,
         "status": overall_status,
         "summary": summary,
+        "invalid_documents": invalid_documents,
+        "total_invalid_documents": len(invalid_documents),
+        "rejection_reasons": all_rejection_reasons,  # Detailed list of all issues
+        "validation_details": validation_details,
         "marks_mentioned_in_resume": marks_mentioned,
         "academic_criteria_met": academic_criteria_met,
         "detailed_feedback": {
-            "resume_cover_letter": {
-                "valid": resume_result["valid"],
-                "marks_mentioned": marks_mentioned,
-                "academic_details": resume_result.get("academic_details", {}),
-                "feedback": resume_result.get("feedback", "")
-            },
-            "letter_of_recommendation": {
-                "valid": lor_result["valid"],
-                "feedback": lor_result.get("feedback", "")
-            },
-            "marksheets_backlog_check": {
-                "valid": marksheet_result["valid"],
-                "total_backlogs": marksheet_result.get("total_backlogs", 0),
-                "details": marksheet_result.get("marksheet_results", {}),
-                "feedback": marksheet_result.get("overall_feedback", {})
-            }
-        },
-        "rejection_reasons": issues if not all_valid else []
+            "resume_cover_letter": validation_details["resume_cover_letter"],
+            "letter_of_recommendation": validation_details["letter_of_recommendation"],
+            "marksheets_backlog_check": validation_details["marksheets"]
+        }
     }
+
+
+# 1. UPDATE THE /validate ENDPOINT - Remove the application_date parameter and add automatic date:
 
 @app.post("/validate")
 async def validate_documents(
@@ -578,54 +1025,81 @@ async def validate_documents(
 ):
     try:
         logger.info("Starting document validation with strict mark requirements")
-        
-        # Process resume/cover letter with mark requirements
+
+        # Store filenames for tracking
+        resume_filename = resume.filename
+        lor_filename = lor.filename
+        class_10_filename = class_10.filename
+        class_12_filename = class_12.filename
+        college_filename = college_marksheets.filename
+
+        # Process resume (same as before)
         resume_text, resume_text_extractable = extract_text_from_pdf(resume)
         logger.info(f"Resume text extractable: {resume_text_extractable}")
-        
+
         if resume_text_extractable:
             doc_type = classify_document(text=resume_text)
-            if doc_type == "RESUME":
-                resume_result = validate_resume_with_marks(text=resume_text)
-            else:
-                resume_result = validate_cover_letter_with_marks(text=resume_text)
+            resume_result = (
+                validate_resume_with_marks(text=resume_text)
+                if doc_type == "RESUME"
+                else validate_cover_letter_with_marks(text=resume_text)
+            )
         else:
             logger.info("Resume: Using vision-based processing")
             resume_images = pdf_to_images(resume)
             doc_type = classify_document(images=resume_images)
-            if doc_type == "RESUME":
-                resume_result = validate_resume_with_marks(images=resume_images)
-            else:
-                resume_result = validate_cover_letter_with_marks(images=resume_images)
-        
-        # Process LOR
+            resume_result = (
+                validate_resume_with_marks(images=resume_images)
+                if doc_type == "RESUME"
+                else validate_cover_letter_with_marks(images=resume_images)
+            )
+
+        # Extract skills and course information from resume
+        logger.info("Extracting skills and course information")
+        if resume_text_extractable:
+            skills_info = extract_skills_and_course_info(text=resume_text)
+        else:
+            skills_info = extract_skills_and_course_info(images=resume_images)
+
+        # Process LOR without application_date parameter
         lor_text, lor_text_extractable = extract_text_from_pdf(lor)
         logger.info(f"LOR text extractable: {lor_text_extractable}")
-        
+
         if lor_text_extractable:
-            lor_result = validate_lor(text=lor_text)
+            lor_result = validate_lor(text=lor_text)  # Remove application_date parameter
         else:
             logger.info("LOR: Using vision-based processing")
             lor_images = pdf_to_images(lor)
-            lor_result = validate_lor(images=lor_images)
-        
-        # Process marksheets for backlog check only
-        marksheet_result = validate_all_marksheets_for_backlogs(class_10, class_12, college_marksheets)
-        
+            lor_result = validate_lor(images=lor_images)  # Removed application_date parameter
+
+        # Process marksheets (same as before)
+        marksheet_result = validate_all_marksheets_for_backlogs(
+            class_10, class_12, college_marksheets
+        )
+
         logger.info("Document validation complete")
+
+        # Evaluate result with filenames
+        result = evaluate_overall_application(
+            resume_result, lor_result, marksheet_result,
+            resume_filename, lor_filename, class_10_filename, 
+            class_12_filename, college_filename
+        )
         
-        # Evaluate overall application with strict requirements
-        result = evaluate_overall_application(resume_result, lor_result, marksheet_result)
-        result["document_type"] = doc_type
-        
+        # Add skills information to result
+        result["applicant_profile"] = {
+            "skills_analysis": skills_info,
+        }
+
         return JSONResponse(content=result)
+
     except Exception as e:
         logger.error(f"Error in validate_documents: {str(e)}", exc_info=True)
         return JSONResponse(
             content={
                 "error": str(e),
                 "message": "An error occurred while processing your request"
-            }, 
+            },
             status_code=500
         )
 
