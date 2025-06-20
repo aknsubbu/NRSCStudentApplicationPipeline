@@ -937,13 +937,10 @@ def evaluate_overall_application(resume_result: dict, lor_result: dict, markshee
         "feedback": lor_result.get("feedback", ""),
         "issues": lor_issues
     }
-    
     if not lor_valid:
         invalid_documents.append(lor_filename)
         for issue in lor_issues:
-            all_rejection_reasons.append(f"{lor_filename}: {issue}")
-    
-    # Check marksheet validity
+            all_rejection_reasons.append(f"{lor_filename}: {issue}")    
     marksheet_valid = marksheet_result["valid"]
     validation_details["marksheets"] = {
         "filenames": {
@@ -956,11 +953,8 @@ def evaluate_overall_application(resume_result: dict, lor_result: dict, markshee
         "details": marksheet_result.get("marksheet_results", {}),
         "feedback": marksheet_result.get("overall_feedback", {}),
         "issues": []
-    }
-    
-    # Check individual marksheet results
+    }    
     marksheet_results = marksheet_result.get("marksheet_results", {})
-    
     if not marksheet_results.get("class_10", {}).get("valid", True):
         backlogs_10 = marksheet_results.get("class_10", {}).get("backlogs", 0)
         issue = f"Class 10 marksheet has {backlogs_10} backlog(s)"
@@ -974,27 +968,22 @@ def evaluate_overall_application(resume_result: dict, lor_result: dict, markshee
         validation_details["marksheets"]["issues"].append(issue)
         all_rejection_reasons.append(f"{class_12_filename}: {issue}")
         invalid_documents.append(class_12_filename)
-    
     if not marksheet_results.get("college", {}).get("valid", True):
         backlogs_college = marksheet_results.get("college", {}).get("backlogs", 0)
         issue = f"College marksheet has {backlogs_college} backlog(s)"
         validation_details["marksheets"]["issues"].append(issue)
         all_rejection_reasons.append(f"{college_filename}: {issue}")
         invalid_documents.append(college_filename)
-    
     # Remove duplicates from invalid_documents
     invalid_documents = list(set(invalid_documents))
-    
     # Overall validation
     all_valid = resume_valid and lor_valid and marksheet_valid
     overall_status = "accepted" if all_valid else "rejected"
-    
     # Generate summary
     if all_valid:
         summary = "Application meets all requirements: academic marks mentioned and meet criteria, dates valid, no backlogs found."
     else:
         summary = f"Application rejected. {len(all_rejection_reasons)} specific issues found across {len(invalid_documents)} documents."
-    
     return {
         "valid": all_valid,
         "status": overall_status,
@@ -1011,10 +1000,6 @@ def evaluate_overall_application(resume_result: dict, lor_result: dict, markshee
             "marksheets_backlog_check": validation_details["marksheets"]
         }
     }
-
-
-# 1. UPDATE THE /validate ENDPOINT - Remove the application_date parameter and add automatic date:
-
 @app.post("/validate")
 async def validate_documents(
     resume: UploadFile = File(...),
@@ -1025,18 +1010,15 @@ async def validate_documents(
 ):
     try:
         logger.info("Starting document validation with strict mark requirements")
-
         # Store filenames for tracking
         resume_filename = resume.filename
         lor_filename = lor.filename
         class_10_filename = class_10.filename
         class_12_filename = class_12.filename
         college_filename = college_marksheets.filename
-
         # Process resume (same as before)
         resume_text, resume_text_extractable = extract_text_from_pdf(resume)
         logger.info(f"Resume text extractable: {resume_text_extractable}")
-
         if resume_text_extractable:
             doc_type = classify_document(text=resume_text)
             resume_result = (
@@ -1053,46 +1035,36 @@ async def validate_documents(
                 if doc_type == "RESUME"
                 else validate_cover_letter_with_marks(images=resume_images)
             )
-
         # Extract skills and course information from resume
         logger.info("Extracting skills and course information")
         if resume_text_extractable:
             skills_info = extract_skills_and_course_info(text=resume_text)
         else:
             skills_info = extract_skills_and_course_info(images=resume_images)
-
         # Process LOR without application_date parameter
         lor_text, lor_text_extractable = extract_text_from_pdf(lor)
         logger.info(f"LOR text extractable: {lor_text_extractable}")
-
         if lor_text_extractable:
             lor_result = validate_lor(text=lor_text)  # Remove application_date parameter
         else:
             logger.info("LOR: Using vision-based processing")
             lor_images = pdf_to_images(lor)
             lor_result = validate_lor(images=lor_images)  # Removed application_date parameter
-
         # Process marksheets (same as before)
         marksheet_result = validate_all_marksheets_for_backlogs(
             class_10, class_12, college_marksheets
         )
-
         logger.info("Document validation complete")
-
         # Evaluate result with filenames
         result = evaluate_overall_application(
             resume_result, lor_result, marksheet_result,
             resume_filename, lor_filename, class_10_filename, 
             class_12_filename, college_filename
         )
-        
-        # Add skills information to result
         result["applicant_profile"] = {
             "skills_analysis": skills_info,
         }
-
         return JSONResponse(content=result)
-
     except Exception as e:
         logger.error(f"Error in validate_documents: {str(e)}", exc_info=True)
         return JSONResponse(
@@ -1102,7 +1074,6 @@ async def validate_documents(
             },
             status_code=500
         )
-
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8005)
