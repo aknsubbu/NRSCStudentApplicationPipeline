@@ -17,8 +17,9 @@ import re
 import time
 from contextlib import contextmanager
 import hashlib
+from datetime import datetime
 
-#  TODO: Add a route to fetch the information required response and pass it to manager
+
 
 # Load environment variables
 load_dotenv()
@@ -47,7 +48,7 @@ class EmailConfig(BaseModel):
     # If True, mark emails as read after processing
     mark_as_read: bool = False
     # If True, move processed emails to processed folder
-    move_processed: bool = True
+    move_processed: bool = False
     # Directory to save attachments
     attachment_dir: str = "attachments"
     # Connection timeout
@@ -75,7 +76,7 @@ DEFAULT_CONFIG = EmailConfig(
     app_keywords=os.getenv("APP_KEYWORDS", "application,apply,job,position,vacancy").split(","),
     max_emails=10,
     mark_as_read=os.getenv("MARK_AS_READ", "False").lower() == "true",
-    move_processed=os.getenv("MOVE_PROCESSED", "True").lower() == "true",
+    move_processed=os.getenv("MOVE_PROCESSED", "False").lower() == "true",
     attachment_dir=os.getenv("ATTACHMENT_DIR", "attachments"),
     timeout=60,
     include_raw_email=os.getenv("INCLUDE_RAW_EMAIL", "False").lower() == "true"
@@ -108,6 +109,8 @@ class Attachment(BaseModel):
 
 class EmailData(BaseModel):
     id: str
+    student_id:str
+    application_id:str
     subject: str
     sender: str
     recipient: Optional[str] = None
@@ -417,6 +420,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
         sender = safe_decode_header(email_message.get("From", ""))
         recipient = safe_decode_header(email_message.get("To", ""))
         date = email_message.get("Date", "")
+        sender_email = extract_email_from_sender(sender)
         
         # Extract email body and attachments
         body_text = ""
@@ -460,9 +464,16 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
         if config.include_raw_email:
             raw_email_base64 = base64.b64encode(raw_email).decode('utf-8')
         
+        current_year = datetime.now().year
+        
+        application_id = f"{current_year}/{sender_email}"
+        student_id= hashlib.md5(sender_email.encode()).hexdigest()
+        
         # Create email content dictionary
         email_content = {
             "id": email_id_str,
+            "student_id": student_id,
+            "application_id": application_id,
             "subject": subject,
             "sender": sender,
             "recipient": recipient,
@@ -493,6 +504,8 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
         return {
             "id": str(email_id),
             "subject": "Error processing email",
+            "student_id": None,
+            "application_id": None,
             "sender": "Unknown",
             "recipient": None,
             "date": "",
@@ -505,6 +518,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
             "email_hash": hashlib.md5(str(email_id).encode()).hexdigest(),
             "raw_email_base64": None
         }
+
 
 def fetch_emails(config: EmailConfig) -> Dict[str, Any]:
     """Fetch emails from the specified IMAP server with improved error handling and folder management."""
