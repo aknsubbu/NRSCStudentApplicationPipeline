@@ -19,7 +19,7 @@ from contextlib import contextmanager
 import hashlib
 from datetime import datetime
 
-
+#  TODO: Add a route to fetch the information required response and pass it to manager
 
 # Load environment variables
 load_dotenv()
@@ -43,6 +43,8 @@ class EmailConfig(BaseModel):
     processed_folder: str = "Processed"  # Folder for processed emails
     # Keywords to identify application emails
     app_keywords: List[str] = Field(default_factory=lambda: ["application", "apply", "job", "position", "vacancy"])
+    # Keywords to identify information required emails
+    info_required_keywords: List[str] = Field(default_factory=lambda: ["information required", "info required", "additional information", "please provide", "documents needed", "missing information"])
     # Maximum number of emails to fetch
     max_emails: int = 10
     # If True, mark emails as read after processing
@@ -57,7 +59,11 @@ class EmailConfig(BaseModel):
     include_raw_email: bool = False
     
     @validator('app_keywords')
-    def validate_keywords(cls, v):
+    def validate_app_keywords(cls, v):
+        return [keyword.strip().lower() for keyword in v if keyword.strip()]
+    
+    @validator('info_required_keywords')
+    def validate_info_required_keywords(cls, v):
         return [keyword.strip().lower() for keyword in v if keyword.strip()]
     
     @validator('max_emails')
@@ -74,6 +80,7 @@ DEFAULT_CONFIG = EmailConfig(
     folder=os.getenv("EMAIL_FOLDER", "INBOX"),
     processed_folder=os.getenv("PROCESSED_FOLDER", "Processed"),
     app_keywords=os.getenv("APP_KEYWORDS", "application,apply,job,position,vacancy").split(","),
+    info_required_keywords=os.getenv("INFO_REQUIRED_KEYWORDS", "information required,info required,additional information,please provide,documents needed,missing information").split(","),
     max_emails=10,
     mark_as_read=os.getenv("MARK_AS_READ", "False").lower() == "true",
     move_processed=os.getenv("MOVE_PROCESSED", "False").lower() == "true",
@@ -92,6 +99,7 @@ class UpdateConfigRequest(BaseModel):
     folder: Optional[str] = None
     processed_folder: Optional[str] = None
     app_keywords: Optional[List[str]] = None
+    info_required_keywords: Optional[List[str]] = None
     max_emails: Optional[int] = None
     mark_as_read: Optional[bool] = None
     move_processed: Optional[bool] = None
@@ -109,8 +117,8 @@ class Attachment(BaseModel):
 
 class EmailData(BaseModel):
     id: str
-    student_id:str
-    application_id:str
+    student_id: str
+    application_id: str
     subject: str
     sender: str
     recipient: Optional[str] = None
@@ -118,7 +126,9 @@ class EmailData(BaseModel):
     body_text: str
     body_html: Optional[str] = None
     is_application: bool
-    keywords_found: List[str]
+    is_info_required: bool
+    app_keywords_found: List[str]
+    info_required_keywords_found: List[str]
     attachments: List[Attachment] = []
     raw_email_base64: Optional[str] = None  # Complete email for backup
     processed_timestamp: str
@@ -127,6 +137,7 @@ class EmailData(BaseModel):
 class EmailResponse(BaseModel):
     total_emails: int
     application_emails: int
+    info_required_emails: int
     processed_emails: int
     moved_emails: int
     emails: List[EmailData]
@@ -260,20 +271,35 @@ def calculate_email_hash(email_message) -> str:
     combined = f"{sender}{subject}{date}"
     return hashlib.md5(combined.encode()).hexdigest()
 
-def check_if_application_email(email_content: Dict[str, Any], config: EmailConfig) -> tuple[bool, List[str]]:
-    """Check if email is an application email based on keywords."""
-    keywords_found = []
+def check_email_categories(email_content: Dict[str, Any], config: EmailConfig) -> tuple[bool, List[str], bool, List[str]]:
+    """Check if email is an application email and/or information required email based on keywords."""
+    app_keywords_found = []
+    info_required_keywords_found = []
     
     # Combine subject and body for searching
     search_text = f"{email_content.get('subject', '')} {email_content.get('body_text', '')}".lower()
     
-    # Use regex for better keyword matching
+    # Check for application keywords
     for keyword in config.app_keywords:
         pattern = r'\b' + re.escape(keyword.lower()) + r'\b'
         if re.search(pattern, search_text):
-            keywords_found.append(keyword)
+            app_keywords_found.append(keyword)
     
-    return bool(keywords_found), keywords_found
+    # Check for information required keywords
+    for keyword in config.info_required_keywords:
+        # For multi-word phrases, don't require word boundaries
+        if len(keyword.split()) > 1:
+            if keyword.lower() in search_text:
+                info_required_keywords_found.append(keyword)
+        else:
+            pattern = r'\b' + re.escape(keyword.lower()) + r'\b'
+            if re.search(pattern, search_text):
+                info_required_keywords_found.append(keyword)
+    
+    is_application = bool(app_keywords_found)
+    is_info_required = bool(info_required_keywords_found)
+    
+    return is_application, app_keywords_found, is_info_required, info_required_keywords_found
 
 def safe_decode_header(header_value: str) -> str:
     """Safely decode email headers."""
@@ -467,7 +493,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
         current_year = datetime.now().year
         
         application_id = f"{current_year}/{sender_email}"
-        student_id= hashlib.md5(sender_email.encode()).hexdigest()
+        student_id = hashlib.md5(sender_email.encode()).hexdigest()
         
         # Create email content dictionary
         email_content = {
@@ -485,11 +511,13 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
             "raw_email_base64": raw_email_base64
         }
         
-        # Check if it's an application email
-        is_application, keywords_found = check_if_application_email(email_content, config)
+        # Check email categories
+        is_application, app_keywords_found, is_info_required, info_required_keywords_found = check_email_categories(email_content, config)
         
         email_content["is_application"] = is_application
-        email_content["keywords_found"] = keywords_found
+        email_content["is_info_required"] = is_info_required
+        email_content["app_keywords_found"] = app_keywords_found
+        email_content["info_required_keywords_found"] = info_required_keywords_found
         email_content["attachments"] = [attachment.dict() for attachment in attachments]
         
         # Mark as read if specified
@@ -512,7 +540,9 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
             "body_text": f"Error: {str(e)}",
             "body_html": None,
             "is_application": False,
-            "keywords_found": [],
+            "is_info_required": False,
+            "app_keywords_found": [],
+            "info_required_keywords_found": [],
             "attachments": [],
             "processed_timestamp": datetime.now().isoformat(),
             "email_hash": hashlib.md5(str(email_id).encode()).hexdigest(),
@@ -567,8 +597,8 @@ def fetch_emails(config: EmailConfig) -> Dict[str, Any]:
                     emails.append(email_content)
                     processed_count += 1
                     
-                    # Move email to processed folder if enabled and it's an application email
-                    if config.move_processed and email_content.get("is_application", False):
+                    # Move email to processed folder if enabled and it's an application or info required email
+                    if config.move_processed and (email_content.get("is_application", False) or email_content.get("is_info_required", False)):
                         # Re-select source folder before moving (processing might have changed selection)
                         mail.select(config.folder)
                         
@@ -584,7 +614,7 @@ def fetch_emails(config: EmailConfig) -> Dict[str, Any]:
                     # Continue processing other emails
             
             processing_time = time.time() - start_time
-            logger.info(f"Processed {processed_count} emails in {processing_time:.2f}s, {error_count} errors, {moved_emails} moved")
+            # logger.info(f"Processed {processed_count} emails in {processing_time:.2f}s, {error_count} errors, {moved_emails} moved")
             
             return {
                 "emails": emails,
@@ -646,10 +676,12 @@ def poll_emails(config: EmailConfig = Depends(get_config)):
     
     # Filter application emails
     application_emails = [email for email in emails if email.get("is_application", False)]
+    info_required_emails = [email for email in emails if email.get("is_info_required", False)]
     
     response = {
         "total_emails": len(emails),
         "application_emails": len(application_emails),
+        "info_required_emails": len(info_required_emails),
         "processed_emails": len(emails),
         "moved_emails": result["moved_emails"],
         "emails": application_emails if len(application_emails) > 0 else emails,
@@ -671,6 +703,7 @@ def poll_and_save(background_tasks: BackgroundTasks, config: EmailConfig = Depen
             result = fetch_emails(config)
             emails = result["emails"]
             application_emails = [email for email in emails if email.get("is_application", False)]
+            info_required_emails = [email for email in emails if email.get("is_info_required", False)]
             
             output_dir = Path("output")
             output_dir.mkdir(exist_ok=True)
@@ -682,6 +715,7 @@ def poll_and_save(background_tasks: BackgroundTasks, config: EmailConfig = Depen
                 json.dump({
                     "total_emails": len(emails),
                     "application_emails": len(application_emails),
+                    "info_required_emails": len(info_required_emails),
                     "processed_emails": len(emails),
                     "moved_emails": result["moved_emails"],
                     "emails": application_emails if len(application_emails) > 0 else emails,
@@ -690,7 +724,7 @@ def poll_and_save(background_tasks: BackgroundTasks, config: EmailConfig = Depen
                     "errors": result["errors"]
                 }, f, indent=2, ensure_ascii=False)
             
-            logger.info(f"Saved emails to {output_file}")
+            # logger.info(f"Saved emails to {output_file}")
         except Exception as e:
             logger.error(f"Error saving emails: {e}")
     
@@ -706,13 +740,39 @@ def get_application_emails(config: EmailConfig = Depends(get_config)):
     result = fetch_emails(config)
     emails = result["emails"]
     application_emails = [email for email in emails if email.get("is_application", False)]
+    info_required_emails = [email for email in emails if email.get("is_info_required", False)]
     
     response = {
         "total_emails": len(emails),
         "application_emails": len(application_emails),
+        "info_required_emails": len(info_required_emails),
         "processed_emails": len(emails),
         "moved_emails": result["moved_emails"],
         "emails": application_emails,
+        "processing_time": round(result["processing_time"], 2),
+        "errors": result["errors"]
+    }
+    
+    return response
+
+@app.get("/information-required-emails", response_model=EmailResponse)
+def get_information_required_emails(config: EmailConfig = Depends(get_config)):
+    """Get only information required emails."""
+    if not config.username or not config.password:
+        raise HTTPException(status_code=400, detail="Email credentials not configured")
+    
+    result = fetch_emails(config)
+    emails = result["emails"]
+    application_emails = [email for email in emails if email.get("is_application", False)]
+    info_required_emails = [email for email in emails if email.get("is_info_required", False)]
+    
+    response = {
+        "total_emails": len(emails),
+        "application_emails": len(application_emails),
+        "info_required_emails": len(info_required_emails),
+        "processed_emails": len(emails),
+        "moved_emails": result["moved_emails"],
+        "emails": info_required_emails,
         "processing_time": round(result["processing_time"], 2),
         "errors": result["errors"]
     }
@@ -797,4 +857,4 @@ if __name__ == "__main__":
     Path("output").mkdir(exist_ok=True)
     
     # Run the FastAPI app
-    uvicorn.run("main:app", host="0.0.0.0", port=8002, log_level="info",reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8002, log_level="info", reload=True)
