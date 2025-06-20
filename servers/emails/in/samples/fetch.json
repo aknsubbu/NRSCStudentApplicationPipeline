@@ -1,0 +1,66 @@
+{
+  "total_emails": 10,
+  "application_emails": 1,
+  "processed_emails": 10,
+  "moved_emails": 1,
+  "emails": [
+    {
+      "id": "11",
+      "subject": "Internship Application for Summer 2025 - May to June",
+      "sender": "Anandkumar NS <aknsubbu@gmail.com>",
+      "recipient": "bot.nrsc@gmail.com",
+      "date": "Fri, 20 Jun 2025 09:35:47 +0530",
+      "body_text": "Respected Sir/Madam,\r\n\r\nI would like to apply for the* internship* during the Summer of 2025 in the\r\nMay- June window at NRSC in ISRO. I am a curious and explorative computer\r\nscience student from PSG College of Technology. I would love to collaborate\r\nwith ISRO and the National Remote Sensing Center to be able to learn and\r\nbuild innovative products and services in collaboration with industry\r\nprofessionals. I believe this will be a very rare chance to learn to the\r\nfore-front of technology.\r\n\r\nI have experience working with Frontend, Backend and Full Stack Projects in\r\nthe Application development space and have worked on two different\r\nArtificial Intelligence projects that use open-source LLMs and AI Agentic\r\nworkflow. I have also worked with open source models and cloud services to\r\nbuild a text to video news converter which one “first prize” at the AI\r\nGoogleathon at SNS College of Engineering.\r\n\r\nI am also certified in Python, SQL, ExpressJS, JavaScript and Version\r\nControl System. I also have experience working with open source AI\r\nFrameworks such as LangChain and LlamaIndex.\r\n\r\nI am an executive at the GitHub Campus Club of PSG College of Technology\r\nand I handle frontend development and Applied AI Applications.\r\nMore details about my profile are enclosed within my resume.\r\n\r\nI would love to work at NRSC and ISRO and hope I will be given a chance to\r\ndo the same.\r\n\r\nRegards,\r\nAnandkumar NS\r\nPh: +91 9384870740\r\n\r\n\r\n\r\n\r\n\r\n",
+      "body_html": "<div><br></div><div><div class=\"gmail_quote gmail_quote_container\"><div><div class=\"gmail_quote\"><br><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div>Respected Sir/Madam,</div><div><br></div><div>I would like to apply for the<b> internship</b> during the Summer of 2025 in the May- June window at NRSC in ISRO. I am a curious and explorative computer science student from PSG College of Technology. I would love to collaborate with ISRO and the National Remote Sensing Center to be able to learn and build innovative products and services in collaboration with industry professionals. I believe this will be a very rare chance to learn to the fore-front of technology. </div><div><br></div><div>I have experience working with Frontend, Backend and Full Stack Projects in the Application development space and have worked on two different Artificial Intelligence projects that use open-source LLMs and AI Agentic workflow. I have also worked with open source models and cloud services to build a text to video news converter which one “first prize” at the AI Googleathon at SNS College of Engineering.</div><div><br></div><div>I am also certified in Python, SQL, ExpressJS, JavaScript and Version Control System. I also have experience working with open source AI Frameworks such as LangChain and LlamaIndex.</div><div><br></div><div>I am an executive at the GitHub Campus Club of PSG College of Technology and I handle frontend development and Applied AI Applications.</div><div>More details about my profile are enclosed within my resume.</div><div dir=\"auto\" style=\"line-break:after-white-space\"><br></div>I would love to work at NRSC and ISRO and hope I will be given a chance to do the same.</div><br style=\"color:rgb(0,0,0)\"><div>\r\n<div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div>Regards,<br>Anandkumar NS<br>Ph: +91 9384870740<br><br></div></div></div></div><div style=\"line-break:after-white-space\"><div id=\"m_-8173487326230802783m_-3835227443158400101AppleMailSignature\"><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div><div style=\"line-break:after-white-space\"><div id=\"m_-8173487326230802783m_-3835227443158400101AppleMailSignature\"><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div><div style=\"line-break:after-white-space\"><div id=\"m_-8173487326230802783m_-3835227443158400101AppleMailSignature\"><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div><div style=\"line-break:after-white-space\"><div id=\"m_-8173487326230802783m_-3835227443158400101AppleMailSignature\"><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div><div style=\"line-break:after-white-space\"><div><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div><div><br></div></div><br><br>\r\n\r\n</div>\r\n",
+      "is_application": true,
+      "keywords_found": ["application", "apply"],
+      "attachments": [
+        {
+          "filename": "AnandkumarNS_CV.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/11/AnandkumarNS_CV.pdf",
+          "size": 57386,
+          "content_base64": "",
+          "file_hash": "c0cdb66dcc66e2d1311b4d4f44fa81b0"
+        },
+        {
+          "filename": "AnandkumarNS_undergrad.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/11/AnandkumarNS_undergrad.pdf",
+          "size": 1945432,
+          "content_base64": "",
+          "file_hash": "f83c3dc3b87575033d1402259ac59ba1"
+        },
+        {
+          "filename": "AnandkumarNS_X.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/11/AnandkumarNS_X.pdf",
+          "size": 632703,
+          "content_base64": "",
+          "file_hash": "595c193cac39d4a12a56b4d2cd78bd80"
+        },
+        {
+          "filename": "AnandkumarNS_XII.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/11/AnandkumarNS_XII.pdf",
+          "size": 692266,
+          "content_base64": "",
+          "file_hash": "09e6c9d95b76335e0d8cfe6d9330e94f"
+        },
+        {
+          "filename": "PSGTECH_AnandkumarNS_CompterScience.pdf",
+          "content_type": "application/pdf",
+          "path": "attachments/11/PSGTECH_AnandkumarNS_CompterScience.pdf",
+          "size": 3980836,
+          "content_base64": "",
+          "file_hash": "c8c2d4e058ba9b407a74de12b6b52fd5"
+        }
+      ],
+      "raw_email_base64": null,
+      "processed_timestamp": "2025-06-20T09:38:13.207775",
+      "email_hash": "2d6bdab2e1a763318d6a08d02eb2c9d6"
+    }
+  ],
+  "processing_time": 9.37,
+  "errors": []
+}

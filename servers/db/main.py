@@ -41,8 +41,8 @@ BUCKET_NAME = os.getenv("BUCKET_NAME", "applicationdocs")
 # Initialize SQLite DB
 conn = sqlite3.connect('application.db')
 cursor = conn.cursor()
-cursor.execute('''CREATE TABLE IF NOT EXISTS applications (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id TEXT, application_id TEXT, application_status TEXT, intern_project TEXT, intern_project_start_date TEXT, intern_project_end_date TEXT, application_status TEXT)''')
-cursor.execute(" CREATE TABLE IF NOT EXISTS STUDENT_DETAILS (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id TEXT, student_name TEXT, student_email TEXT, student_phone TEXT, student_status TEXT, )")
+cursor.execute('''CREATE TABLE IF NOT EXISTS applications (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id TEXT, application_id TEXT, application_status TEXT, intern_project TEXT, intern_project_start_date TEXT, intern_project_end_date TEXT)''')
+cursor.execute(" CREATE TABLE IF NOT EXISTS students (id INTEGER PRIMARY KEY AUTOINCREMENT, student_id TEXT, student_name TEXT, student_email TEXT, student_phone TEXT, student_status TEXT)")
 conn.commit()
 
 @app.get("/health")

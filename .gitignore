@@ -4,3 +4,4 @@ __pycache__
 attachments
 test.ipynb
 .DS_Store
+application.db

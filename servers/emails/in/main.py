@@ -32,8 +32,9 @@ logger = logging.getLogger("email-poller")
 
 app = FastAPI(title="Email Polling API", description="API for polling emails using IMAP with folder management")
 
+
 # Configuration models
-class EmailConfig(BaseModel):
+class EmailConfig(BaseModel):   
     imap_server: str
     username: str
     password: str
@@ -131,6 +132,18 @@ class EmailResponse(BaseModel):
 
 def get_config():
     return current_config
+
+
+#utility functions
+def extract_email_from_sender(sender: str) -> str:
+    
+    match = re.search(r'<([^<>]+@[^<>]+)>', sender)
+
+    if match:
+        email = match.group(1)
+        return email
+    else:
+        return None
 
 @contextmanager
 def imap_connection(config: EmailConfig):
