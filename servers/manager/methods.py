@@ -42,13 +42,16 @@ class StudentApplicationPipelineClient:
     # =================
     # AI VALIDATION API
     # =================
-    
+    import requests
+    from typing import Union, Dict, Any
+    from pathlib import Path
+
     def validate_documents(self, 
-                          resume_cover_letter: Union[str, Path],
-                          letter_of_recommendation: Union[str, Path],
-                          class_10_marksheet: Union[str, Path],
-                          class_12_marksheet: Union[str, Path],
-                          college_marksheets: Union[str, Path]) -> Dict[str, Any]:
+                        resume_cover_letter: Union[str, Path],
+                        letter_of_recommendation: Union[str, Path],
+                        class_10_marksheet: Union[str, Path],
+                        class_12_marksheet: Union[str, Path],
+                        college_marksheets: Union[str, Path]) -> Dict[str, Any]:
         """
         Validate all required documents using AI validation server.
         
@@ -61,25 +64,154 @@ class StudentApplicationPipelineClient:
             
         Returns:
             Dict containing validation results
+            
+        Raises:
+            FileNotFoundError: If any of the specified files don't exist
+            requests.RequestException: If the API request fails
+            Exception: For other validation errors
         """
         url = f"{self.ai_server_url}/validate"
         
+        # Convert to Path objects for easier handling
+        resume_path = Path(resume_cover_letter)
+        lor_path = Path(letter_of_recommendation)
+        class_10_path = Path(class_10_marksheet)
+        class_12_path = Path(class_12_marksheet)
+        college_path = Path(college_marksheets)
+        
+        # Validate that all files exist before making the request
+        files_to_check = [
+            (resume_path, "Resume/Cover Letter"),
+            (lor_path, "Letter of Recommendation"),
+            (class_10_path, "Class 10 Marksheet"),
+            (class_12_path, "Class 12 Marksheet"),
+            (college_path, "College Marksheets")
+        ]
+        
+        for file_path, file_desc in files_to_check:
+            if not file_path.exists():
+                raise FileNotFoundError(f"{file_desc} file not found: {file_path}")
+        
+        # Prepare files dict with correct parameter names matching the FastAPI server
         files = {
-            'resume_cover_letter': open(resume_cover_letter, 'rb'),
-            'letter_of_recommendation': open(letter_of_recommendation, 'rb'),
-            'class_10_marksheet': open(class_10_marksheet, 'rb'),
-            'class_12_marksheet': open(class_12_marksheet, 'rb'),
-            'college_marksheets': open(college_marksheets, 'rb')
+            'resume': open(resume_path, 'rb'),
+            'lor': open(lor_path, 'rb'), 
+            'class_10': open(class_10_path, 'rb'),
+            'class_12': open(class_12_path, 'rb'),
+            'college_marksheets': open(college_path, 'rb')
         }
         
         try:
-            response = requests.post(url, files=files)
+            # Make the API request
+            response = requests.post(url, files=files, timeout=300)  # 5 minute timeout
+            
+            # Check if request was successful
+            response.raise_for_status()
+            
+            # Return the JSON response
             return response.json()
+            
+        except requests.exceptions.Timeout:
+            raise Exception("Request timed out. The validation process is taking too long.")
+        except requests.exceptions.ConnectionError:
+            raise Exception(f"Could not connect to AI validation server at {self.ai_server_url}")
+        except requests.exceptions.HTTPError as e:
+            if response.status_code == 500:
+                error_detail = response.json().get('error', 'Unknown server error')
+                raise Exception(f"Server error during validation: {error_detail}")
+            else:
+                raise Exception(f"HTTP error {response.status_code}: {e}")
+        except requests.exceptions.RequestException as e:
+            raise Exception(f"Request failed: {e}")
+        except Exception as e:
+            raise Exception(f"Validation failed: {e}")
         finally:
-            # Close all file handles
-            for file in files.values():
-                file.close()
-    
+            # Ensure all file handles are closed
+            for file_handle in files.values():
+                if not file_handle.closed:
+                    file_handle.close()
+
+
+# Alternative version with more robust error handling and logging
+    def validate_documents_with_logging(self, 
+                                    resume_cover_letter: Union[str, Path],
+                                    letter_of_recommendation: Union[str, Path],
+                                    class_10_marksheet: Union[str, Path],
+                                    class_12_marksheet: Union[str, Path],
+                                    college_marksheets: Union[str, Path]) -> Dict[str, Any]:
+        """
+        Validate all required documents using AI validation server with detailed logging.
+        
+        Args:
+            resume_cover_letter: Path to resume/cover letter PDF
+            letter_of_recommendation: Path to recommendation letter PDF
+            class_10_marksheet: Path to class 10 marksheet PDF
+            class_12_marksheet: Path to class 12 marksheet PDF
+            college_marksheets: Path to college marksheets PDF
+            
+        Returns:
+            Dict containing validation results
+        """
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        url = f"{self.ai_server_url}/validate"
+        logger.info(f"Starting document validation using server: {url}")
+        
+        # Convert to Path objects
+        file_paths = {
+            'resume': Path(resume_cover_letter),
+            'lor': Path(letter_of_recommendation),
+            'class_10': Path(class_10_marksheet),
+            'class_12': Path(class_12_marksheet),
+            'college_marksheets': Path(college_marksheets)
+        }
+        
+        # Validate file existence
+        for param_name, file_path in file_paths.items():
+            if not file_path.exists():
+                logger.error(f"File not found: {file_path}")
+                raise FileNotFoundError(f"Required file not found: {file_path}")
+            logger.info(f"Found {param_name}: {file_path}")
+        
+        # Prepare files for upload
+        files = {}
+        
+        try:
+            # Open all files
+            for param_name, file_path in file_paths.items():
+                files[param_name] = open(file_path, 'rb')
+                logger.info(f"Opened {param_name} file: {file_path.name}")
+            
+            # Make the API request
+            logger.info("Sending validation request to server...")
+            response = requests.post(url, files=files, timeout=300)
+            
+            # Check response
+            response.raise_for_status()
+            result = response.json()
+            
+            # Log results
+            status = result.get('status', 'unknown')
+            logger.info(f"Validation completed with status: {status}")
+            
+            if not result.get('valid', False):
+                invalid_docs = result.get('invalid_documents', [])
+                logger.warning(f"Validation failed. Invalid documents: {invalid_docs}")
+            
+            return result
+            
+        except Exception as e:
+            logger.error(f"Document validation failed: {e}")
+            raise
+        finally:
+            # Ensure all files are closed
+            for param_name, file_handle in files.items():
+                if hasattr(file_handle, 'close') and not file_handle.closed:
+                    file_handle.close()
+                    logger.debug(f"Closed {param_name} file")
+                
+                
     def ai_health_check(self) -> Dict[str, Any]:
         """Check AI server health status."""
         url = f"{self.ai_server_url}/health"
