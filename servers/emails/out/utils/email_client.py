@@ -249,7 +249,7 @@ def test_email_connection():
         smtp_host = os.getenv("SMTP_HOST")
         smtp_port = os.getenv("SMTP_PORT")
         email_sender = os.getenv("EMAIL_SENDER")
-        email_password = os.getenv("EMAIL_PASSWORD")
+        email_password = os.getenv("EMAIL_PASSWORD_IN")
         
         logger.info(f"SMTP Host: {smtp_host}")
         logger.info(f"SMTP Port: {smtp_port}")
