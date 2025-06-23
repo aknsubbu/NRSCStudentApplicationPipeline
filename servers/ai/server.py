@@ -819,20 +819,20 @@ def validate_all_marksheets_for_backlogs(class_10_file: UploadFile, class_12_fil
     if not class_10_text_extractable:
         logger.info("Class 10 marksheet: Text not extractable, using vision")
         class_10_images = pdf_to_images(class_10_file)
-        class_10_result = validate_marksheet_for_backlogs(images=class_10_images, class_level="10")
+        # class_10_result = validate_marksheet_for_backlogs(images=class_10_images, class_level="10")
     else:
         logger.info("Class 10 marksheet: Using text-based validation")
-        class_10_result = validate_marksheet_for_backlogs(text=class_10_text, class_level="10")
+        # class_10_result = validate_marksheet_for_backlogs(text=class_10_text, class_level="10")
     
     # Process Class 12 marksheet
     class_12_text, class_12_text_extractable = extract_text_from_pdf(class_12_file)
     if not class_12_text_extractable:
         logger.info("Class 12 marksheet: Text not extractable, using vision")
         class_12_images = pdf_to_images(class_12_file)
-        class_12_result = validate_marksheet_for_backlogs(images=class_12_images, class_level="12")
+        # class_12_result = validate_marksheet_for_backlogs(images=class_12_images, class_level="12")
     else:
         logger.info("Class 12 marksheet: Using text-based validation")
-        class_12_result = validate_marksheet_for_backlogs(text=class_12_text, class_level="12")
+        # class_12_result = validate_marksheet_for_backlogs(text=class_12_text, class_level="12")
     
     # Process College marksheet
     college_text, college_text_extractable = extract_text_from_pdf(college_file)
@@ -843,25 +843,18 @@ def validate_all_marksheets_for_backlogs(class_10_file: UploadFile, class_12_fil
     else:
         logger.info("College marksheet: Using text-based validation")
         college_result = validate_marksheet_for_backlogs(text=college_text, class_level="College")
-    
-    logger.info(f"Class 10 backlog check: {class_10_result}")
-    logger.info(f"Class 12 backlog check: {class_12_result}")
+
     logger.info(f"College backlog check: {college_result}")
     
-    all_valid = (class_10_result["valid"] and 
-                class_12_result["valid"] and 
+    all_valid = (
                 college_result["valid"])
     
-    total_backlogs = (class_10_result.get("backlogs", 0) + 
-                     class_12_result.get("backlogs", 0) + 
-                     college_result.get("backlogs", 0))
+    total_backlogs = (college_result.get("backlogs", 0))
     
     return {
         "valid": all_valid,
         "total_backlogs": total_backlogs,
         "marksheet_results": {
-            "class_10": class_10_result,
-            "class_12": class_12_result,
             "college": college_result
         },
         "processing_methods": {

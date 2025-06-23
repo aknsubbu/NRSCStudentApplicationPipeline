@@ -7,11 +7,11 @@ from pathlib import Path
 from servers.manager.methods import StudentApplicationPipelineClient
 
 # Paths to your sample PDF files
-resume = Path("RichardSamuel_Cv.pdf")
-lor = Path("PSGCT_RichardSamuel_CSE_AIML.pdf")
-class_10 = Path("RichardSamuel_X.pdf")
-class_12 = Path("RichardSamuel_XII.pdf")
-college = Path("RichardSamuel_Undergrad.pdf")
+resume = Path("output/RichardSamuel_Cv.pdf")
+lor = Path("output/PSGCT_RichardSamuel_CSE_AIML.pdf")
+class_10 = Path("output/RichardSamuel_X.pdf")
+class_12 = Path("output/RichardSamuel_XII.pdf")
+college = Path("output/RichardSamuel_Undergrad.pdf")
 
 # Instantiate the client (adjust URLs and API keys if needed)
 client = StudentApplicationPipelineClient(
