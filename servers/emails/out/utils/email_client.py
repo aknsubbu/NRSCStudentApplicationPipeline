@@ -18,7 +18,7 @@ logger = logging.getLogger(__name__)
 
 def validate_email_config():
     """Validate that required email configuration is present."""
-    required_vars = ['EMAIL_SENDER', 'EMAIL_PASSWORD_OUT', 'SMTP_HOST', 'SMTP_PORT']
+    required_vars = ['EMAIL_SENDER', 'EMAIL_PASSWORD_IN', 'SMTP_HOST', 'SMTP_PORT']
     missing_vars = [var for var in required_vars if not os.getenv(var)]
     
     if missing_vars:
@@ -88,7 +88,7 @@ def send_email(recipient: str, subject: str, body: str, is_html: bool = False,
         smtp_host = os.getenv("SMTP_HOST")
         smtp_port = int(os.getenv("SMTP_PORT"))
         email_sender = os.getenv("EMAIL_SENDER")
-        email_password = os.getenv("EMAIL_PASSWORD")
+        email_password = os.getenv("EMAIL_PASSWORD_IN")
         
         logger.info(f"Connecting to {smtp_host}:{smtp_port}")
         

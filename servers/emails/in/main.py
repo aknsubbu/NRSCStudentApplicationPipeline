@@ -857,4 +857,4 @@ if __name__ == "__main__":
     Path("output").mkdir(exist_ok=True)
     
     # Run the FastAPI app
-    uvicorn.run("main:app", host="0.0.0.0", port=8002, log_level="info", reload=True)
+    uvicorn.run("main:app", host="0.0.0.0", port=8004, log_level="info")
