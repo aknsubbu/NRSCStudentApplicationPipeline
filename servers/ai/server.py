@@ -150,12 +150,12 @@ def extract_skills_and_course_info(text: str = None, images: list = None) -> dic
         
         return {
             "technical_skills": extract_field(response_text, "TECHNICAL_SKILLS"),
-            "programming_languages": extract_field(response_text, "PROGRAMMING_LANGUAGES"),
+            # "programming_languages": extract_field(response_text, "PROGRAMMING_LANGUAGES"),
             # "projects": extract_field(response_text, "PROJECTS"),
             "course_degree": extract_field(response_text, "COURSE_DEGREE"),
             "tools_technologies": extract_field(response_text, "TOOLS_TECHNOLOGIES"),
             "domain_expertise": extract_field(response_text, "DOMAIN_EXPERTISE"),
-            "suitability_assessment": extract_field(response_text, "SUITABILITY_ASSESSMENT"),
+            # "suitability_assessment": extract_field(response_text, "SUITABILITY_ASSESSMENT"),
             # "full_analysis": response_text
         }
     except Exception as e:
@@ -292,7 +292,6 @@ def validate_resume_with_marks(text: str = None, images: list = None) -> dict:
                 "cgpa": cgpa,
                 "meets_criteria": academic_valid
             },
-            "full_ai_response": response_text
         }
     except Exception as e:
         return {
@@ -300,94 +299,6 @@ def validate_resume_with_marks(text: str = None, images: list = None) -> dict:
             "feedback": f"Error validating resume: {str(e)}"
         }
 
-def validate_cover_letter_with_marks(text: str = None, images: list = None) -> dict:
-    """Validate cover letter ensuring academic marks are present and meet requirements"""
-    prompt = (
-        "You are validating a student's cover letter for an internship application.\n"
-        "CRITICAL REQUIREMENTS:\n"
-        "1. The cover letter MUST mention academic performance (Class 10, Class 12, and CGPA)\n"
-        "2. Minimum requirements: Class 10: 60%, Class 12: 60%, CGPA: 6.32\n"
-        "3. Must include student's motivation/interest\n"
-        "4. Should reference specific skills relevant to the position\n"
-        "5. Should have proper formatting (greeting, closing)\n\n"
-        "IMPORTANT: If academic marks are not mentioned in the cover letter, mark as INVALID.\n"
-        "Return your response in this exact format:\n"
-        "VALID: [true/false]\n"
-        "FEEDBACK: [your detailed feedback]\n"
-        "HIGHLIGHTS: [key points mentioned]\n"
-        "CLASS_10_PERCENTAGE: [percentage found in cover letter or NA]\n"
-        "CLASS_12_PERCENTAGE: [percentage found in cover letter or NA]\n"
-        "CGPA: [CGPA found in cover letter or NA]\n"
-        "MARKS_MENTIONED: [true/false - whether academic marks are mentioned]\n"
-        "MEETS_MINIMUM_CRITERIA: [true/false - whether marks meet minimum requirements]"
-    )
-    
-    try:
-        if text and is_text_extractable(text):
-            full_prompt = f"{prompt}\n\nCover letter content:\n{text}"
-            response = model.generate_content(full_prompt)
-            response_text = response.text.strip()
-        elif images:
-            response_text = process_document_with_vision(images, prompt)
-        else:
-            return {"valid": False, "feedback": "No content to validate"}
-        
-        # Extract academic details
-        class_10_percentage = extract_percentage(extract_field(response_text, "CLASS_10_PERCENTAGE"))
-        class_12_percentage = extract_percentage(extract_field(response_text, "CLASS_12_PERCENTAGE"))
-        cgpa_str = extract_field(response_text, "CGPA")
-        cgpa = extract_percentage(cgpa_str) if cgpa_str != "NA" else 0
-        
-        # Check if marks are mentioned
-        marks_mentioned_line = extract_field(response_text, "MARKS_MENTIONED")
-        marks_mentioned = 'true' in marks_mentioned_line.lower()
-        
-        # Validate minimum criteria
-        meets_class_10 = class_10_percentage >= 60
-        meets_class_12 = class_12_percentage >= 60
-        meets_cgpa = cgpa >= 6.32
-        
-        academic_valid = meets_class_10 and meets_class_12 and meets_cgpa
-        
-        # Check other cover letter requirements
-        valid_line = next((line for line in response_text.split('\n') 
-                          if line.lower().startswith('valid:')), '')
-        content_valid = 'true' in valid_line.lower()
-        
-        # Overall validation: must have marks mentioned AND meet criteria AND have good content
-        overall_valid = marks_mentioned and academic_valid and content_valid
-        
-        feedback_parts = []
-        if not marks_mentioned:
-            feedback_parts.append("Academic marks (Class 10, Class 12, CGPA) must be mentioned in cover letter")
-        if not meets_class_10 and class_10_percentage > 0:
-            feedback_parts.append(f"Class 10 percentage ({class_10_percentage}%) below required 60%")
-        if not meets_class_12 and class_12_percentage > 0:
-            feedback_parts.append(f"Class 12 percentage ({class_12_percentage}%) below required 60%")
-        if not meets_cgpa and cgpa > 0:
-            feedback_parts.append(f"CGPA ({cgpa}) below required 6.32")
-        if not content_valid:
-            feedback_parts.append("Cover letter content does not meet formatting/motivation requirements")
-        
-        detailed_feedback = ". ".join(feedback_parts) if feedback_parts else "Cover letter meets all requirements"
-        
-        return {
-            "valid": overall_valid,
-            "feedback": detailed_feedback,
-            "marks_mentioned": marks_mentioned,
-            "academic_details": {
-                "class_10": class_10_percentage,
-                "class_12": class_12_percentage,
-                "cgpa": cgpa,
-                "meets_criteria": academic_valid
-            },
-            "full_ai_response": response_text
-        }
-    except Exception as e:
-        return {
-            "valid": False,
-            "feedback": f"Error validating cover letter: {str(e)}"
-        }
 
 #---------------------****THIS IS FOR CHECKING THE EXACT DATES IN LOR****--------------------------#
 '''
@@ -640,6 +551,95 @@ def validate_lor(text: str = None, images: list = None) -> dict:
         }
 '''
 #--------------------------------------------------------------------------------------------------#
+
+def validate_cover_letter_with_marks(text: str = None, images: list = None) -> dict:
+    """Validate cover letter ensuring academic marks are present and meet requirements"""
+    prompt = (
+        "You are validating a student's cover letter for an internship application.\n"
+        "CRITICAL REQUIREMENTS:\n"
+        "1. The cover letter MUST mention academic performance (Class 10, Class 12, and CGPA)\n"
+        "2. Minimum requirements: Class 10: 60%, Class 12: 60%, CGPA: 6.32\n"
+        "3. Must include student's motivation/interest\n"
+        "4. Should reference specific skills relevant to the position\n"
+        "5. Should have proper formatting (greeting, closing)\n\n"
+        "IMPORTANT: If academic marks are not mentioned in the cover letter, mark as INVALID.\n"
+        "Return your response in this exact format:\n"
+        "VALID: [true/false]\n"
+        "FEEDBACK: [your detailed feedback]\n"
+        "HIGHLIGHTS: [key points mentioned]\n"
+        "CLASS_10_PERCENTAGE: [percentage found in cover letter or NA]\n"
+        "CLASS_12_PERCENTAGE: [percentage found in cover letter or NA]\n"
+        "CGPA: [CGPA found in cover letter or NA]\n"
+        "MARKS_MENTIONED: [true/false - whether academic marks are mentioned]\n"
+        "MEETS_MINIMUM_CRITERIA: [true/false - whether marks meet minimum requirements]"
+    )
+    
+    try:
+        if text and is_text_extractable(text):
+            full_prompt = f"{prompt}\n\nCover letter content:\n{text}"
+            response = model.generate_content(full_prompt)
+            response_text = response.text.strip()
+        elif images:
+            response_text = process_document_with_vision(images, prompt)
+        else:
+            return {"valid": False, "feedback": "No content to validate"}
+        
+        # Extract academic details
+        class_10_percentage = extract_percentage(extract_field(response_text, "CLASS_10_PERCENTAGE"))
+        class_12_percentage = extract_percentage(extract_field(response_text, "CLASS_12_PERCENTAGE"))
+        cgpa_str = extract_field(response_text, "CGPA")
+        cgpa = extract_percentage(cgpa_str) if cgpa_str != "NA" else 0
+        
+        # Check if marks are mentioned
+        marks_mentioned_line = extract_field(response_text, "MARKS_MENTIONED")
+        marks_mentioned = 'true' in marks_mentioned_line.lower()
+        
+        # Validate minimum criteria
+        meets_class_10 = class_10_percentage >= 60
+        meets_class_12 = class_12_percentage >= 60
+        meets_cgpa = cgpa >= 6.32
+        
+        academic_valid = meets_class_10 and meets_class_12 and meets_cgpa
+        
+        # Check other cover letter requirements
+        valid_line = next((line for line in response_text.split('\n') 
+                          if line.lower().startswith('valid:')), '')
+        content_valid = 'true' in valid_line.lower()
+        
+        # Overall validation: must have marks mentioned AND meet criteria AND have good content
+        overall_valid = marks_mentioned and academic_valid and content_valid
+        
+        feedback_parts = []
+        if not marks_mentioned:
+            feedback_parts.append("Academic marks (Class 10, Class 12, CGPA) must be mentioned in cover letter")
+        if not meets_class_10 and class_10_percentage > 0:
+            feedback_parts.append(f"Class 10 percentage ({class_10_percentage}%) below required 60%")
+        if not meets_class_12 and class_12_percentage > 0:
+            feedback_parts.append(f"Class 12 percentage ({class_12_percentage}%) below required 60%")
+        if not meets_cgpa and cgpa > 0:
+            feedback_parts.append(f"CGPA ({cgpa}) below required 6.32")
+        if not content_valid:
+            feedback_parts.append("Cover letter content does not meet formatting/motivation requirements")
+        
+        detailed_feedback = ". ".join(feedback_parts) if feedback_parts else "Cover letter meets all requirements"
+        
+        return {
+            "valid": overall_valid,
+            "feedback": detailed_feedback,
+            "marks_mentioned": marks_mentioned,
+            "academic_details": {
+                "class_10": class_10_percentage,
+                "class_12": class_12_percentage,
+                "cgpa": cgpa,
+                "meets_criteria": academic_valid
+            },
+        }
+    except Exception as e:
+        return {
+            "valid": False,
+            "feedback": f"Error validating cover letter: {str(e)}"
+        }
+
 def validate_lor(text: str = None, images: list = None) -> dict:
     """Validate letter of recommendation using text or vision with automatic date validation"""
     prompt = (
@@ -744,8 +744,6 @@ def validate_lor(text: str = None, images: list = None) -> dict:
             "dates_mentioned": dates_mentioned,
             "start_date": start_date_str,
             "end_date": end_date_str,
-            "basic_lor_valid": basic_valid,
-            "date_validation_valid": date_validation_valid
         }
     except Exception as e:
         return {
@@ -854,14 +852,7 @@ def validate_all_marksheets_for_backlogs(class_10_file: UploadFile, class_12_fil
     return {
         "valid": all_valid,
         "total_backlogs": total_backlogs,
-        "marksheet_results": {
-            "college": college_result
-        },
-        "processing_methods": {
-            "class_10": "vision" if not class_10_text_extractable else "text",
-            "class_12": "vision" if not class_12_text_extractable else "text",
-            "college": "vision" if not college_text_extractable else "text"
-        },
+        "college": college_result,
         "overall_feedback": {
             "passes_backlog_check": all_valid,
             "total_backlogs_found": total_backlogs
