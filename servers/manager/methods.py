@@ -4,6 +4,10 @@ import os
 from typing import Dict, List, Optional, Any, Union
 from pathlib import Path
 from dotenv import load_dotenv
+import re
+import pandas as pd
+from datetime import datetime, timedelta
+
 
 load_dotenv()
 
@@ -646,3 +650,243 @@ class StudentApplicationPipelineClient:
         response = requests.get(url, headers=self.email_headers)
         return response.json()
 
+    # ===================
+    # Excel Validation
+    # ===================
+    def validate_excel_file(self,file_path: str) -> Dict:
+        """
+        Validate Excel file against NRSC requirements
+        
+        Args:
+            file_path: Path to the Excel file
+        
+        Returns:
+            Dict containing validation results
+        """
+        try:
+            # Extract data from Excel file
+            excel_data = extract_excel_data(file_path)
+            
+            # Validate the data
+            validation_result = validate_excel_fields(excel_data)
+            
+            return {
+                'success': validation_result['all_valid'],
+                'extracted_data': excel_data,
+                'validation_result': validation_result,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'extracted_data': {},
+                'validation_result': {'errors': [f"File processing error: {str(e)}"]},
+                'timestamp': datetime.now().isoformat()
+            }
+
+    def validate_excel_data(self,excel_data: Dict) -> Dict:
+        """
+        Validate Excel data dictionary against NRSC requirements
+        
+        Args:
+            excel_data: Dictionary containing Excel data
+        
+        Returns:
+            Dict containing validation results
+        """
+        try:
+            validation_result = validate_excel_fields(excel_data)
+            
+            return {
+                'success': validation_result['all_valid'],
+                'extracted_data': excel_data,
+                'validation_result': validation_result,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'extracted_data': excel_data,
+                'validation_result': {'errors': [f"Validation error: {str(e)}"]},
+                'timestamp': datetime.now().isoformat()
+            }
+
+    def extract_excel_data(self,file_path: str) -> Dict:
+        """
+        Extract data from Excel file
+        
+        Args:
+            file_path: Path to the Excel file
+        
+        Returns:
+            Dict containing extracted data
+        """
+        try:
+            # Read Excel file (assumes data is in first sheet)
+            df = pd.read_excel(file_path, sheet_name=0)
+            
+            # Extract data - modify these indices based on your Excel structure
+            # Assuming data is in column B (index 1) and starts from row 1
+            extracted_data = {
+                'name': str(df.iloc[0, 1]) if len(df) > 0 and not pd.isna(df.iloc[0, 1]) else '',
+                'phone_number': str(df.iloc[1, 1]) if len(df) > 1 and not pd.isna(df.iloc[1, 1]) else '',
+                'email_id': str(df.iloc[2, 1]) if len(df) > 2 and not pd.isna(df.iloc[2, 1]) else '',
+                'date_of_birth': str(df.iloc[3, 1]) if len(df) > 3 and not pd.isna(df.iloc[3, 1]) else '',
+                'duration_and_type': str(df.iloc[4, 1]) if len(df) > 4 and not pd.isna(df.iloc[4, 1]) else '',
+                'application_start_date': str(df.iloc[5, 1]) if len(df) > 5 and not pd.isna(df.iloc[5, 1]) else '',
+                'end_date': str(df.iloc[6, 1]) if len(df) > 6 and not pd.isna(df.iloc[6, 1]) else '',
+                'project_or_internship': str(df.iloc[7, 1]) if len(df) > 7 and not pd.isna(df.iloc[7, 1]) else '',
+                'college_name': str(df.iloc[8, 1]) if len(df) > 8 and not pd.isna(df.iloc[8, 1]) else '',
+                'semester_completed': df.iloc[9, 1] if len(df) > 9 and not pd.isna(df.iloc[9, 1]) else '',
+                'cgpa': df.iloc[10, 1] if len(df) > 10 and not pd.isna(df.iloc[10, 1]) else '',
+                'twelfth_mark_percentage': df.iloc[11, 1] if len(df) > 11 and not pd.isna(df.iloc[11, 1]) else '',
+                'tenth_mark_percentage': df.iloc[12, 1] if len(df) > 12 and not pd.isna(df.iloc[12, 1]) else '',
+            }
+            
+            # Handle date formatting
+            for date_field in ['application_start_date', 'end_date', 'date_of_birth']:
+                if date_field in extracted_data and extracted_data[date_field]:
+                    value = extracted_data[date_field]
+                    if isinstance(value, pd.Timestamp):
+                        extracted_data[date_field] = value.strftime('%Y-%m-%d')
+                    else:
+                        # Try to parse and reformat date string
+                        try:
+                            parsed_date = pd.to_datetime(value)
+                            extracted_data[date_field] = parsed_date.strftime('%Y-%m-%d')
+                        except:
+                            extracted_data[date_field] = str(value)
+            
+            return extracted_data
+            
+        except Exception as e:
+            raise Exception(f"Failed to extract data from Excel file: {str(e)}")
+
+    def validate_excel_fields(self,excel_data: Dict) -> Dict:
+        """
+        Validate Excel data against NRSC requirements
+        
+        Args:
+            excel_data: Dictionary containing extracted Excel data
+        
+        Returns:
+            Dict containing validation results with errors and warnings
+        """
+        errors = []
+        warnings = []
+        
+        # Required fields
+        required_fields = [
+            'name', 'phone_number', 'email_id', 'date_of_birth',
+            'duration_and_type', 'application_start_date', 'end_date', 
+            'project_or_internship', 'college_name', 'semester_completed',
+            'cgpa', 'twelfth_mark_percentage', 'tenth_mark_percentage'
+        ]
+        
+        # Rule 1: Check for null/empty fields
+        for field in required_fields:
+            value = excel_data.get(field)
+            if value is None or str(value).strip() == '' or str(value).lower() in ['null', 'none', 'n/a', 'nan']:
+                errors.append(f"Field '{field}' is required but is null or empty")
+        
+        # Rule 2: Start date validation (30 days after current date)
+        try:
+            start_date_str = excel_data.get('application_start_date', '')
+            if start_date_str:
+                start_date = datetime.strptime(str(start_date_str), '%Y-%m-%d')
+                current_date = datetime.now()
+                min_start_date = current_date + timedelta(days=30)
+                
+                if start_date < min_start_date:
+                    errors.append(f"Application start date ({start_date_str}) must be at least 30 days from current date ({min_start_date.strftime('%Y-%m-%d')})")
+        except (ValueError, TypeError):
+            if excel_data.get('application_start_date'):
+                errors.append(f"Invalid application start date format. Expected YYYY-MM-DD, got: {excel_data.get('application_start_date')}")
+        
+        # Rule 3: CGPA validation (minimum 6.32)
+        try:
+            cgpa = float(excel_data.get('cgpa', 0))
+            if cgpa < 6.32:
+                errors.append(f"CGPA ({cgpa}) must be at least 6.32 on a scale of 10")
+        except (ValueError, TypeError):
+            if excel_data.get('cgpa'):
+                errors.append(f"Invalid CGPA format. Expected numeric value, got: {excel_data.get('cgpa')}")
+        
+        # Rule 4: 10th and 12th marks validation (minimum 60%)
+        try:
+            tenth_marks = float(excel_data.get('tenth_mark_percentage', 0))
+            if tenth_marks < 60.0:
+                errors.append(f"10th mark percentage ({tenth_marks}%) must be at least 60%")
+        except (ValueError, TypeError):
+            if excel_data.get('tenth_mark_percentage'):
+                errors.append(f"Invalid 10th mark percentage format. Expected numeric value, got: {excel_data.get('tenth_mark_percentage')}")
+        
+        try:
+            twelfth_marks = float(excel_data.get('twelfth_mark_percentage', 0))
+            if twelfth_marks < 60.0:
+                errors.append(f"12th mark percentage ({twelfth_marks}%) must be at least 60%")
+        except (ValueError, TypeError):
+            if excel_data.get('twelfth_mark_percentage'):
+                errors.append(f"Invalid 12th mark percentage format. Expected numeric value, got: {excel_data.get('twelfth_mark_percentage')}")
+        
+        # Additional validations
+        # Email format validation
+        email = excel_data.get('email_id', '')
+        if email and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            errors.append(f"Invalid email format: {email}")
+        
+        # Phone number validation
+        phone = excel_data.get('phone_number', '')
+        if phone:
+            cleaned_phone = str(phone).replace('+', '').replace('-', '').replace(' ', '').replace('(', '').replace(')', '')
+            if not re.match(r'^\d{10,15}$', cleaned_phone):
+                warnings.append(f"Phone number format may be invalid: {phone}")
+        
+        return {
+            'all_valid': len(errors) == 0,
+            'errors': errors,
+            'warnings': warnings,
+            'total_errors': len(errors),
+            'total_warnings': len(warnings)
+        }
+
+    # Usage Examples:
+    """
+    # Example 1: Validate Excel file directly
+    result = validate_excel_file("path/to/application.xlsx")
+    if result['success']:
+        print("Validation passed!")
+        print("Extracted data:", result['extracted_data'])
+    else:
+        print("Validation failed!")
+        print("Errors:", result['validation_result']['errors'])
+
+    # Example 2: Validate Excel data dictionary
+    excel_data = {
+        'name': 'John Doe',
+        'phone_number': '9876543210',
+        'email_id': 'john@example.com',
+        'cgpa': 7.5,
+        'application_start_date': '2025-08-01',
+        'tenth_mark_percentage': 75.0,
+        'twelfth_mark_percentage': 80.0,
+        # ... other required fields
+    }
+    result = validate_excel_data(excel_data)
+    print("Validation result:", result['success'])
+    print("Errors:", result['validation_result']['errors'])
+
+    # Example 3: Extract data from Excel file
+    excel_data = extract_excel_data("path/to/application.xlsx")
+    print("Extracted data:", excel_data)
+
+    # Example 4: Validate extracted data
+    validation = validate_excel_fields(excel_data)
+    print("Is valid:", validation['all_valid'])
+    print("Errors:", validation['errors'])
+    print("Warnings:", validation['warnings'])
+    """
