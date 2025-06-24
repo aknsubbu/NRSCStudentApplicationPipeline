@@ -81,8 +81,6 @@ class ApplicationPipelineManager:
                     logging.info(f"Categorizing attachments for student {student_id}")
                     categories=client.categorize_attachments(attachments=attachments)
                     logging.info(f"Attachments categorized for student {student_id}")
-                    logging.info(f"Categories: {categories}")
-
                     #validate the attachments
                     logging.info(f"Validating attachments for student {student_id}")
                     response=client.validate_documents(resume_cover_letter=categories['resume'],letter_of_recommendation=categories['lor'],class_10_marksheet=categories['class_10'],class_12_marksheet=categories['class_12'],college_marksheets=categories['college'])
