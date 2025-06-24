@@ -92,11 +92,16 @@ class ApplicationPipelineManager:
                         client.update_student_status(student_id=student_id,new_status='validated')
                         #send the application validated email
                         client.send_application_validated_email(recipient=application['sender'],subject=f"Application Validated for {application['sender']}",student_name=application['sender'],application_id=application_id,student_id=student_id)
+                        
                     elif response['valid']==False:
                         logging.info(f"Attachments are invalid for student {student_id}")
                         validation_data=client.extract_validation_data(response)
                         #send the validation failed email
                         client.send_validation_failed_email(recipient=application['sender'],subject=f"Document Validation Failed - Action Required ({student_id})",student_id=student_id,object_name="pdf_attachment_validation",expires=36000,template_data={"student_name":application['sender'],"message":"Your PDF document submission has validation issues that need to be corrected:","issues":validation_data['validation_issues']},file_list=response['invalid_documents'])
+                        
+                    logging.info(f"Moving files to archive subfolder within the attachements folder for student {student_id}")
+                    client.archive_and_delete_files(source_root=f"attachments/{student_id}",archive_root=f"attachments/archive/{student_id}")
+                    logging.info(f"Files moved to archive subfolder within the attachements folder for student {student_id}")
 
                     
                 else:

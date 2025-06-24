@@ -214,3 +214,32 @@
 2025-06-24 14:36:42,200 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
 2025-06-24 14:37:25,279 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
 2025-06-24 14:37:25,280 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:16,344 - INFO - Logging initialized successfully
+2025-06-24 14:46:16,344 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:46:16,344 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:46:16,344 - INFO - Fetching applications
+2025-06-24 14:46:25,696 - INFO - Found 1 applications
+2025-06-24 14:46:25,696 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:46:25,696 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,711 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,711 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,712 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,712 - INFO - Invalid attachments: ['Missing required documents: CV document, X document, XII document, undergrad document', "Too many unmatched files (5). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns"]
+2025-06-24 14:48:28,237 - INFO - Logging initialized successfully
+2025-06-24 14:48:28,237 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:48:28,237 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:48:28,237 - INFO - Fetching applications
+2025-06-24 14:48:38,943 - INFO - Found 1 applications
+2025-06-24 14:48:38,943 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:48:38,943 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,955 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,956 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,956 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,959 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:39,077 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:39,078 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:39,078 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:30,603 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:30,604 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:34,609 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:34,614 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a

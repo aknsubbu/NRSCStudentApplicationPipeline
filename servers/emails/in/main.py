@@ -83,7 +83,7 @@ DEFAULT_CONFIG = EmailConfig(
     info_required_keywords=os.getenv("INFO_REQUIRED_KEYWORDS", "information required,info required,additional information,please provide,documents needed,missing information").split(","),
     max_emails=10,
     mark_as_read=os.getenv("MARK_AS_READ", "False").lower() == "true",
-    move_processed=os.getenv("MOVE_PROCESSED", "False").lower() == "true",
+    move_processed=os.getenv("MOVE_PROCESSED", "true").lower() == "true",
     attachment_dir=os.getenv("ATTACHMENT_DIR", "attachments"),
     timeout=60,
     include_raw_email=os.getenv("INCLUDE_RAW_EMAIL", "False").lower() == "true"
