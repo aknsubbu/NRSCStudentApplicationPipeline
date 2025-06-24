@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 import re
 import pandas as pd
 from datetime import datetime, timedelta
+import shutil
 
 
 load_dotenv()
@@ -221,6 +222,42 @@ class StudentApplicationPipelineClient:
         url = f"{self.ai_server_url}/health"
         response = requests.get(url)
         return response.json()
+
+
+    def extract_validation_data(self,validation_output):
+        """Extract validation issues and applicant profile from validation output"""
+        
+        # Initialize result dictionary
+        result = {
+            'validation_issues': [],
+            'applicant_profile': {}
+        }
+        
+        # Extract validation issues
+        if 'invalid_documents' in validation_output and validation_output['invalid_documents']:
+            result['validation_issues'].extend(validation_output['invalid_documents'])
+        
+        if 'rejection_reasons' in validation_output and validation_output['rejection_reasons']:
+            result['validation_issues'].extend(validation_output['rejection_reasons'])
+        
+        # Extract detailed document issues
+        doc_issues = []
+        if 'validation_details' in validation_output:
+            for doc_type, details in validation_output['validation_details'].items():
+                if not details.get('valid', True) and 'issues' in details:
+                    doc_issues.append({
+                        'document_type': doc_type,
+                        'filename': details.get('filename', ''),
+                        'issues': details['issues']
+                    })
+        result['document_issues'] = doc_issues
+        
+        # Extract applicant profile
+        if 'applicant_profile' in validation_output:
+            result['applicant_profile'] = validation_output['applicant_profile']['skills_analysis']
+        
+        return result
+
 
     # ===================
     # DATABASE & FILE API
@@ -447,6 +484,39 @@ class StudentApplicationPipelineClient:
         url = f"{self.db_server_url}/health"
         response = requests.get(url)
         return response.json()
+    
+    def archive_and_delete_files(self,source_root, archive_root="attachments/archive"):
+        """
+        Moves files from source path to archive path (preserving directory structure)
+        and then deletes them from source path.
+        
+        Args:
+            source_root (str): Root directory to search for files
+            archive_root (str): Root directory for archive (default: "attachments/archive")
+        """
+        # Convert to Path objects for better path handling
+        source_root = Path(source_root)
+        archive_root = Path(archive_root)
+        
+        # Walk through all files in source directory
+        for file_path in source_root.rglob('*'):
+            if file_path.is_file():
+                try:
+                    # Create relative path from source root
+                    relative_path = file_path.relative_to(source_root)
+                    
+                    # Create destination path in archive
+                    archive_path = archive_root / relative_path
+                    
+                    # Create parent directories if they don't exist
+                    archive_path.parent.mkdir(parents=True, exist_ok=True)
+                    
+                    # Move the file
+                    shutil.move(str(file_path), str(archive_path))
+                    print(f"Moved: {file_path} -> {archive_path}")
+                    
+                except Exception as e:
+                    print(f"Error processing {file_path}: {str(e)}")
 
     # ===================
     # EMAIL POLLING API
@@ -621,6 +691,7 @@ class StudentApplicationPipelineClient:
             "object_name": object_name,
             "expires": expires,
             "template_data": template_data,
+            "template_name": "validation_failed",
             "file_list": file_list or []
         }
         response = requests.post(url, json=data, headers=self.email_headers)
@@ -864,29 +935,137 @@ class StudentApplicationPipelineClient:
     else:
         print("Validation failed!")
         print("Errors:", result['validation_result']['errors'])
-
-    # Example 2: Validate Excel data dictionary
-    excel_data = {
-        'name': 'John Doe',
-        'phone_number': '9876543210',
-        'email_id': 'john@example.com',
-        'cgpa': 7.5,
-        'application_start_date': '2025-08-01',
-        'tenth_mark_percentage': 75.0,
-        'twelfth_mark_percentage': 80.0,
-        # ... other required fields
-    }
-    result = validate_excel_data(excel_data)
-    print("Validation result:", result['success'])
-    print("Errors:", result['validation_result']['errors'])
-
-    # Example 3: Extract data from Excel file
-    excel_data = extract_excel_data("path/to/application.xlsx")
-    print("Extracted data:", excel_data)
-
-    # Example 4: Validate extracted data
-    validation = validate_excel_fields(excel_data)
-    print("Is valid:", validation['all_valid'])
-    print("Errors:", validation['errors'])
-    print("Warnings:", validation['warnings'])
     """
+    
+    # ===================
+    # File Name Validation
+    # ===================
+    def validate_pdf_attachments(self,file_list: List[str]) -> Dict[str, Union[bool, List[str]]]:
+        """
+        Validates PDF attachments according to specific naming requirements.
+        
+        Requirements:
+        - Exactly 5 PDF files
+        - 1 file ending with _CV.pdf
+        - 1 file ending with _X.pdf
+        - 1 file ending with _XII.pdf
+        - 1 file ending with _undergrad.pdf
+        - 1 additional PDF file that doesn't match the above patterns
+        
+        Args:
+            file_list: List of filenames to validate
+            
+        Returns:
+            Dict containing:
+            - isValid: Boolean indicating if validation passed
+            - issues: List of failure reasons
+            - file_list: Original file list
+        """
+        result = {
+            "isValid": False,
+            "issues": [],
+            "file_list": file_list or []
+        }
+        
+        # Check if file_list exists and is a list
+        if not isinstance(file_list, list):
+            result["issues"].append("File list must be a list")
+            return result
+        
+        # Check if exactly 5 files
+        if len(file_list) != 5:
+            result["issues"].append(f"Expected exactly 5 files, but received {len(file_list)} files")
+            return result
+        
+        # Check if all files are PDFs
+        non_pdf_files = [file for file in file_list if not file.lower().endswith('.pdf')]
+        if non_pdf_files:
+            result["issues"].append(f"Non-PDF files found: {', '.join(non_pdf_files)}")
+        
+        # Define required patterns
+        required_patterns = [
+            {"pattern": re.compile(r"_CV\.pdf$", re.IGNORECASE), "name": "CV document", "found": False},
+            {"pattern": re.compile(r"_X\.pdf$", re.IGNORECASE), "name": "X document", "found": False},
+            {"pattern": re.compile(r"_XII\.pdf$", re.IGNORECASE), "name": "XII document", "found": False},
+            {"pattern": re.compile(r"_undergrad\.pdf$", re.IGNORECASE), "name": "undergrad document", "found": False}
+        ]
+        
+        matched_files = set()
+        
+        # Check for required patterns
+        for file in file_list:
+            for requirement in required_patterns:
+                if requirement["pattern"].search(file) and not requirement["found"]:
+                    requirement["found"] = True
+                    matched_files.add(file)
+                    break
+        
+        # Check for missing required documents
+        missing_docs = [req["name"] for req in required_patterns if not req["found"]]
+        if missing_docs:
+            result["issues"].append(f"Missing required documents: {', '.join(missing_docs)}")
+        
+        # Check for duplicate pattern matches
+        duplicate_matches = []
+        for file in file_list:
+            match_count = sum(1 for req in required_patterns if req["pattern"].search(file))
+            if match_count > 1:
+                duplicate_matches.append(file)
+        
+        if duplicate_matches:
+            result["issues"].append(f"Files matching multiple patterns: {', '.join(duplicate_matches)}")
+        
+        # Check if the 5th file is a valid PDF that doesn't match the first 4 patterns
+        unmatched_files = [file for file in file_list if file not in matched_files]
+        
+        if len(unmatched_files) == 0 and len(file_list) == 5:
+            result["issues"].append("All files match the first 4 patterns - need exactly one additional PDF file")
+        elif len(unmatched_files) > 1:
+            result["issues"].append(f"Too many unmatched files ({len(unmatched_files)}). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns")
+        elif len(unmatched_files) == 1:
+            fifth_file = unmatched_files[0]
+            if not fifth_file.lower().endswith('.pdf'):
+                result["issues"].append(f'Fifth file "{fifth_file}" must be a PDF')
+        
+        # If no issues found, validation passes
+        if not result["issues"]:
+            result["isValid"] = True
+        
+        return result
+    
+    
+    def categorize_attachments(self,attachments):
+        """
+        Simple categorization of 5 files:
+        - 1 Resume (_CV.pdf)
+        - 1 Class 10 (_X.pdf)
+        - 1 Class 12 (_XII.pdf)
+        - 1 College (_undergrad.pdf)
+        - 1 LOR (exact name match)
+        """
+        categories = {
+            'resume': None,        # Ends with _CV.pdf
+            'class_10': None,      # Ends with _X.pdf
+            'class_12': None,     # Ends with _XII.pdf
+            'college': None,       # Ends with _undergrad.pdf
+            'lor': None            # Exact name 'letter_of_recommendation.pdf'
+        }
+        
+        for attachment in attachments:
+            name = attachment['filename']
+            path = attachment['path']
+            
+            if name.endswith('_CV.pdf') or name.endswith('_cv.pdf') or name.endswith('_Cv.pdf'):
+                categories['resume'] = path
+            elif name.endswith('_X.pdf'):
+                categories['class_10'] = path
+            elif name.endswith('_XII.pdf'):
+                categories['class_12'] = path
+            elif name.endswith('_undergrad.pdf'):
+                categories['college'] = path
+            else:
+                categories['lor'] = path
+        
+        return categories
+        
+        

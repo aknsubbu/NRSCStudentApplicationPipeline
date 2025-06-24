@@ -158,6 +158,15 @@ def extract_email_from_sender(sender: str) -> str:
         return email
     else:
         return None
+    
+
+def extract_name(sender:str):
+    # Split on '<' and take the first part
+    parts = sender.split('<')
+    if len(parts) > 1:
+        return parts[0].strip()
+    return None
+
 
 @contextmanager
 def imap_connection(config: EmailConfig):
@@ -447,6 +456,11 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
         recipient = safe_decode_header(email_message.get("To", ""))
         date = email_message.get("Date", "")
         sender_email = extract_email_from_sender(sender)
+        current_year = datetime.now().year
+        application_id = f"{current_year}/{sender_email}"
+        student_id = hashlib.md5(sender_email.encode()).hexdigest()
+        sender_name=extract_name(sender)
+        
         
         # Extract email body and attachments
         body_text = ""
@@ -464,7 +478,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
                 
                 # Handle attachments
                 if "attachment" in content_disposition or part.get_filename():
-                    attachment = save_attachment(part, email_id_str, config)
+                    attachment = save_attachment(part, student_id, config)
                     if attachment:
                         attachments.append(attachment)
                 # Handle text parts
@@ -490,10 +504,9 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
         if config.include_raw_email:
             raw_email_base64 = base64.b64encode(raw_email).decode('utf-8')
         
-        current_year = datetime.now().year
         
-        application_id = f"{current_year}/{sender_email}"
-        student_id = hashlib.md5(sender_email.encode()).hexdigest()
+        
+        
         
         # Create email content dictionary
         email_content = {
@@ -501,7 +514,8 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
             "student_id": student_id,
             "application_id": application_id,
             "subject": subject,
-            "sender": sender,
+            "sender": sender_email,
+            "sender_name": sender_name,
             "recipient": recipient,
             "date": date,
             "body_text": body_text.strip(),
@@ -535,6 +549,7 @@ def process_email(mail, email_id: str, config: EmailConfig) -> Dict[str, Any]:
             "student_id": None,
             "application_id": None,
             "sender": "Unknown",
+            "sender_name": "Unknown",
             "recipient": None,
             "date": "",
             "body_text": f"Error: {str(e)}",

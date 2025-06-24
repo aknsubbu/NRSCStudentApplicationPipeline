@@ -1,0 +1,216 @@
+2025-06-24 13:58:11,756 - INFO - Logging initialized successfully
+2025-06-24 13:58:11,757 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 13:58:11,757 - INFO - Application Pipeline Manager Initialized
+2025-06-24 13:58:11,757 - INFO - Fetching applications
+2025-06-24 13:58:16,572 - INFO - Found 1 applications
+2025-06-24 13:58:16,572 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 13:58:16,572 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 13:58:16,586 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 13:58:16,586 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 13:58:16,586 - INFO - Attachments are invalid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 13:58:16,586 - INFO - Invalid attachments: ['Missing required documents: CV document, X document, XII document, undergrad document', "Too many unmatched files (5). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns"]
+2025-06-24 14:01:32,250 - INFO - Logging initialized successfully
+2025-06-24 14:01:32,250 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:01:32,250 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:01:32,250 - INFO - Fetching applications
+2025-06-24 14:01:37,185 - INFO - Found 1 applications
+2025-06-24 14:01:37,185 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:01:37,185 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:01:37,203 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:01:37,203 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:01:37,203 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:01:37,203 - INFO - Sending information required email to aknsubbu@gmail.com for application 2025/aknsubbu@gmail.com
+2025-06-24 14:02:24,894 - INFO - Logging initialized successfully
+2025-06-24 14:02:24,894 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:02:24,894 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:02:24,894 - INFO - Fetching applications
+2025-06-24 14:02:30,965 - INFO - Found 1 applications
+2025-06-24 14:02:30,965 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:02:30,965 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:02:30,977 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:02:30,978 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:02:30,978 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:02:30,978 - INFO - Sending information required email to aknsubbu@gmail.com for application 2025/aknsubbu@gmail.com
+2025-06-24 14:11:10,338 - INFO - Logging initialized successfully
+2025-06-24 14:11:10,338 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:11:10,338 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:11:10,338 - INFO - Fetching applications
+2025-06-24 14:11:14,957 - INFO - Found 1 applications
+2025-06-24 14:11:14,957 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:11:14,957 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:14,969 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:14,969 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:14,969 - INFO - Attachments are invalid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:14,969 - INFO - Invalid attachments: ['Missing required documents: CV document, X document, XII document, undergrad document', "Too many unmatched files (5). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns"]
+2025-06-24 14:11:47,378 - INFO - Logging initialized successfully
+2025-06-24 14:11:47,379 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:11:47,379 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:11:47,379 - INFO - Fetching applications
+2025-06-24 14:11:51,760 - INFO - Found 1 applications
+2025-06-24 14:11:51,761 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:11:51,761 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:51,776 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:51,776 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:51,776 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:51,776 - INFO - Sending information required email to aknsubbu@gmail.com for application 2025/aknsubbu@gmail.com
+2025-06-24 14:11:55,786 - INFO - Uploading email body and attachments to MinIO bucket for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:55,977 - INFO - Moving files to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:11:55,981 - INFO - Files moved to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:28,593 - INFO - Logging initialized successfully
+2025-06-24 14:22:28,593 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:22:28,593 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:22:28,593 - INFO - Fetching applications
+2025-06-24 14:22:37,728 - INFO - Found 1 applications
+2025-06-24 14:22:37,728 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:22:37,728 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,742 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,742 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,742 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,747 - INFO - Uploading email body and attachments to MinIO bucket for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,864 - INFO - Moving files to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,866 - INFO - Files moved to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:22:37,866 - INFO - Categorizing attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:46,507 - INFO - Logging initialized successfully
+2025-06-24 14:24:46,507 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:24:46,507 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:24:46,507 - INFO - Fetching applications
+2025-06-24 14:24:51,388 - INFO - Found 1 applications
+2025-06-24 14:24:51,389 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:24:51,389 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,402 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,402 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,402 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,406 - INFO - Uploading email body and attachments to MinIO bucket for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,543 - INFO - Moving files to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,545 - INFO - Files moved to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:24:51,546 - INFO - Categorizing attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:19,147 - INFO - Logging initialized successfully
+2025-06-24 14:25:19,147 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:25:19,147 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:25:19,147 - INFO - Fetching applications
+2025-06-24 14:25:23,797 - INFO - Found 1 applications
+2025-06-24 14:25:23,797 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:25:23,797 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,809 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,809 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,810 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,813 - INFO - Uploading email body and attachments to MinIO bucket for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,946 - INFO - Moving files to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,948 - INFO - Files moved to archive subfolder within the attachements folder for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,948 - INFO - Categorizing attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,948 - INFO - Attachments categorized for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:25:23,948 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:17,797 - INFO - Logging initialized successfully
+2025-06-24 14:26:17,797 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:26:17,797 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:26:17,797 - INFO - Fetching applications
+2025-06-24 14:26:22,446 - INFO - Found 1 applications
+2025-06-24 14:26:22,447 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:26:22,447 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,459 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,460 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,460 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,464 - INFO - Uploading email body and attachments to MinIO bucket for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,586 - INFO - Categorizing attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,586 - INFO - Attachments categorized for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:26:22,586 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:27:16,040 - INFO - Attachments validated for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:27:16,040 - INFO - Attachments are invalid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:28:27,298 - INFO - Logging initialized successfully
+2025-06-24 14:28:27,298 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:28:27,298 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:28:27,298 - INFO - Fetching applications
+2025-06-24 14:28:32,008 - INFO - Found 1 applications
+2025-06-24 14:28:32,008 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:28:32,008 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:28:32,024 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:28:32,024 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:28:32,024 - INFO - Attachments are invalid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:28:32,024 - INFO - Invalid attachments: ['Missing required documents: CV document, X document, XII document, undergrad document', "Too many unmatched files (5). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns"]
+2025-06-24 14:29:05,732 - INFO - Logging initialized successfully
+2025-06-24 14:29:05,733 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:29:05,733 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:29:05,733 - INFO - Fetching applications
+2025-06-24 14:29:11,640 - INFO - Found 1 applications
+2025-06-24 14:29:11,640 - INFO - Creating student 85b329461856bdab034131d1080dc5ee for application 2025/aknsubbu@gmail.com
+2025-06-24 14:29:11,640 - INFO - Creating application 2025/aknsubbu@gmail.com for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,654 - INFO - Checking attachment names for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,654 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,655 - INFO - Attachments are valid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,658 - INFO - Uploading email body and attachments to MinIO bucket for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,791 - INFO - Categorizing attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,791 - INFO - Attachments categorized for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:11,791 - INFO - Validating attachments for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:57,016 - INFO - Attachments validated for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:29:57,018 - INFO - Attachments are invalid for student 85b329461856bdab034131d1080dc5ee
+2025-06-24 14:32:36,232 - INFO - Logging initialized successfully
+2025-06-24 14:32:36,233 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:32:36,233 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:32:36,233 - INFO - Fetching applications
+2025-06-24 14:32:41,098 - INFO - Found 1 applications
+2025-06-24 14:32:41,098 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:32:41,098 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,113 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,113 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,113 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,119 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,228 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,228 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:32:41,228 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:11,626 - INFO - Logging initialized successfully
+2025-06-24 14:33:11,626 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:33:11,626 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:33:11,626 - INFO - Fetching applications
+2025-06-24 14:33:16,513 - INFO - Found 1 applications
+2025-06-24 14:33:16,513 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:33:16,513 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,522 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,522 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,523 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,528 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,632 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,632 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:33:16,632 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:34:41,003 - INFO - Logging initialized successfully
+2025-06-24 14:34:41,003 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:34:41,003 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:34:41,003 - INFO - Fetching applications
+2025-06-24 14:34:45,657 - INFO - Found 1 applications
+2025-06-24 14:34:45,657 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:34:45,657 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:34:45,679 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:34:45,680 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:34:45,680 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:34:45,680 - INFO - Invalid attachments: ['Missing required documents: CV document, X document, XII document, undergrad document', "Too many unmatched files (5). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns"]
+2025-06-24 14:34:58,535 - INFO - Logging initialized successfully
+2025-06-24 14:34:58,535 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:34:58,535 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:34:58,535 - INFO - Fetching applications
+2025-06-24 14:35:03,538 - INFO - Found 1 applications
+2025-06-24 14:35:03,539 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:35:03,539 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,552 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,552 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,552 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,557 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,649 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,650 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:35:03,650 - INFO - Categories: {'resume': None, 'class_10': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_X.pdf', 'class_12': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_XII.pdf', 'college': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_undergrad.pdf', 'lor': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/PSGCT_RichardSamuel_CSE(AI&ML).pdf'}
+2025-06-24 14:35:03,650 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:36,297 - INFO - Logging initialized successfully
+2025-06-24 14:36:36,298 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:36:36,298 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:36:36,298 - INFO - Fetching applications
+2025-06-24 14:36:42,010 - INFO - Found 1 applications
+2025-06-24 14:36:42,010 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:36:42,010 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,031 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,031 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,031 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,038 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,200 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,200 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:36:42,200 - INFO - Categories: {'resume': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_Cv.pdf', 'class_10': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_X.pdf', 'class_12': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_XII.pdf', 'college': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_undergrad.pdf', 'lor': 'attachments/a10eca89e7fdedecb350f6f0e85c2f2a/PSGCT_RichardSamuel_CSE(AI&ML).pdf'}
+2025-06-24 14:36:42,200 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:37:25,279 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:37:25,280 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
