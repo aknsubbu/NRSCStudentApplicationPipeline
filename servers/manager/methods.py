@@ -4,6 +4,11 @@ import os
 from typing import Dict, List, Optional, Any, Union
 from pathlib import Path
 from dotenv import load_dotenv
+import re
+import pandas as pd
+from datetime import datetime, timedelta
+import shutil
+
 
 load_dotenv()
 
@@ -217,6 +222,42 @@ class StudentApplicationPipelineClient:
         url = f"{self.ai_server_url}/health"
         response = requests.get(url)
         return response.json()
+
+
+    def extract_validation_data(self,validation_output):
+        """Extract validation issues and applicant profile from validation output"""
+        
+        # Initialize result dictionary
+        result = {
+            'validation_issues': [],
+            'applicant_profile': {}
+        }
+        
+        # Extract validation issues
+        if 'invalid_documents' in validation_output and validation_output['invalid_documents']:
+            result['validation_issues'].extend(validation_output['invalid_documents'])
+        
+        if 'rejection_reasons' in validation_output and validation_output['rejection_reasons']:
+            result['validation_issues'].extend(validation_output['rejection_reasons'])
+        
+        # Extract detailed document issues
+        doc_issues = []
+        if 'validation_details' in validation_output:
+            for doc_type, details in validation_output['validation_details'].items():
+                if not details.get('valid', True) and 'issues' in details:
+                    doc_issues.append({
+                        'document_type': doc_type,
+                        'filename': details.get('filename', ''),
+                        'issues': details['issues']
+                    })
+        result['document_issues'] = doc_issues
+        
+        # Extract applicant profile
+        if 'applicant_profile' in validation_output:
+            result['applicant_profile'] = validation_output['applicant_profile']['skills_analysis']
+        
+        return result
+
 
     # ===================
     # DATABASE & FILE API
@@ -443,6 +484,39 @@ class StudentApplicationPipelineClient:
         url = f"{self.db_server_url}/health"
         response = requests.get(url)
         return response.json()
+    
+    def archive_and_delete_files(self,source_root, archive_root="attachments/archive"):
+        """
+        Moves files from source path to archive path (preserving directory structure)
+        and then deletes them from source path.
+        
+        Args:
+            source_root (str): Root directory to search for files
+            archive_root (str): Root directory for archive (default: "attachments/archive")
+        """
+        # Convert to Path objects for better path handling
+        source_root = Path(source_root)
+        archive_root = Path(archive_root)
+        
+        # Walk through all files in source directory
+        for file_path in source_root.rglob('*'):
+            if file_path.is_file():
+                try:
+                    # Create relative path from source root
+                    relative_path = file_path.relative_to(source_root)
+                    
+                    # Create destination path in archive
+                    archive_path = archive_root / relative_path
+                    
+                    # Create parent directories if they don't exist
+                    archive_path.parent.mkdir(parents=True, exist_ok=True)
+                    
+                    # Move the file
+                    shutil.move(str(file_path), str(archive_path))
+                    print(f"Moved: {file_path} -> {archive_path}")
+                    
+                except Exception as e:
+                    print(f"Error processing {file_path}: {str(e)}")
 
     # ===================
     # EMAIL POLLING API
@@ -617,6 +691,7 @@ class StudentApplicationPipelineClient:
             "object_name": object_name,
             "expires": expires,
             "template_data": template_data,
+            "template_name": "validation_failed",
             "file_list": file_list or []
         }
         response = requests.post(url, json=data, headers=self.email_headers)
@@ -646,3 +721,351 @@ class StudentApplicationPipelineClient:
         response = requests.get(url, headers=self.email_headers)
         return response.json()
 
+    # ===================
+    # Excel Validation
+    # ===================
+    def validate_excel_file(self,file_path: str) -> Dict:
+        """
+        Validate Excel file against NRSC requirements
+        
+        Args:
+            file_path: Path to the Excel file
+        
+        Returns:
+            Dict containing validation results
+        """
+        try:
+            # Extract data from Excel file
+            excel_data = extract_excel_data(file_path)
+            
+            # Validate the data
+            validation_result = validate_excel_fields(excel_data)
+            
+            return {
+                'success': validation_result['all_valid'],
+                'extracted_data': excel_data,
+                'validation_result': validation_result,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'extracted_data': {},
+                'validation_result': {'errors': [f"File processing error: {str(e)}"]},
+                'timestamp': datetime.now().isoformat()
+            }
+
+    def validate_excel_data(self,excel_data: Dict) -> Dict:
+        """
+        Validate Excel data dictionary against NRSC requirements
+        
+        Args:
+            excel_data: Dictionary containing Excel data
+        
+        Returns:
+            Dict containing validation results
+        """
+        try:
+            validation_result = validate_excel_fields(excel_data)
+            
+            return {
+                'success': validation_result['all_valid'],
+                'extracted_data': excel_data,
+                'validation_result': validation_result,
+                'timestamp': datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            return {
+                'success': False,
+                'error': str(e),
+                'extracted_data': excel_data,
+                'validation_result': {'errors': [f"Validation error: {str(e)}"]},
+                'timestamp': datetime.now().isoformat()
+            }
+
+    def extract_excel_data(self,file_path: str) -> Dict:
+        """
+        Extract data from Excel file
+        
+        Args:
+            file_path: Path to the Excel file
+        
+        Returns:
+            Dict containing extracted data
+        """
+        try:
+            # Read Excel file (assumes data is in first sheet)
+            df = pd.read_excel(file_path, sheet_name=0)
+            
+            # Extract data - modify these indices based on your Excel structure
+            # Assuming data is in column B (index 1) and starts from row 1
+            extracted_data = {
+                'name': str(df.iloc[0, 1]) if len(df) > 0 and not pd.isna(df.iloc[0, 1]) else '',
+                'phone_number': str(df.iloc[1, 1]) if len(df) > 1 and not pd.isna(df.iloc[1, 1]) else '',
+                'email_id': str(df.iloc[2, 1]) if len(df) > 2 and not pd.isna(df.iloc[2, 1]) else '',
+                'date_of_birth': str(df.iloc[3, 1]) if len(df) > 3 and not pd.isna(df.iloc[3, 1]) else '',
+                'duration_and_type': str(df.iloc[4, 1]) if len(df) > 4 and not pd.isna(df.iloc[4, 1]) else '',
+                'application_start_date': str(df.iloc[5, 1]) if len(df) > 5 and not pd.isna(df.iloc[5, 1]) else '',
+                'end_date': str(df.iloc[6, 1]) if len(df) > 6 and not pd.isna(df.iloc[6, 1]) else '',
+                'project_or_internship': str(df.iloc[7, 1]) if len(df) > 7 and not pd.isna(df.iloc[7, 1]) else '',
+                'college_name': str(df.iloc[8, 1]) if len(df) > 8 and not pd.isna(df.iloc[8, 1]) else '',
+                'semester_completed': df.iloc[9, 1] if len(df) > 9 and not pd.isna(df.iloc[9, 1]) else '',
+                'cgpa': df.iloc[10, 1] if len(df) > 10 and not pd.isna(df.iloc[10, 1]) else '',
+                'twelfth_mark_percentage': df.iloc[11, 1] if len(df) > 11 and not pd.isna(df.iloc[11, 1]) else '',
+                'tenth_mark_percentage': df.iloc[12, 1] if len(df) > 12 and not pd.isna(df.iloc[12, 1]) else '',
+            }
+            
+            # Handle date formatting
+            for date_field in ['application_start_date', 'end_date', 'date_of_birth']:
+                if date_field in extracted_data and extracted_data[date_field]:
+                    value = extracted_data[date_field]
+                    if isinstance(value, pd.Timestamp):
+                        extracted_data[date_field] = value.strftime('%Y-%m-%d')
+                    else:
+                        # Try to parse and reformat date string
+                        try:
+                            parsed_date = pd.to_datetime(value)
+                            extracted_data[date_field] = parsed_date.strftime('%Y-%m-%d')
+                        except:
+                            extracted_data[date_field] = str(value)
+            
+            return extracted_data
+            
+        except Exception as e:
+            raise Exception(f"Failed to extract data from Excel file: {str(e)}")
+
+    def validate_excel_fields(self,excel_data: Dict) -> Dict:
+        """
+        Validate Excel data against NRSC requirements
+        
+        Args:
+            excel_data: Dictionary containing extracted Excel data
+        
+        Returns:
+            Dict containing validation results with errors and warnings
+        """
+        errors = []
+        warnings = []
+        
+        # Required fields
+        required_fields = [
+            'name', 'phone_number', 'email_id', 'date_of_birth',
+            'duration_and_type', 'application_start_date', 'end_date', 
+            'project_or_internship', 'college_name', 'semester_completed',
+            'cgpa', 'twelfth_mark_percentage', 'tenth_mark_percentage'
+        ]
+        
+        # Rule 1: Check for null/empty fields
+        for field in required_fields:
+            value = excel_data.get(field)
+            if value is None or str(value).strip() == '' or str(value).lower() in ['null', 'none', 'n/a', 'nan']:
+                errors.append(f"Field '{field}' is required but is null or empty")
+        
+        # Rule 2: Start date validation (30 days after current date)
+        try:
+            start_date_str = excel_data.get('application_start_date', '')
+            if start_date_str:
+                start_date = datetime.strptime(str(start_date_str), '%Y-%m-%d')
+                current_date = datetime.now()
+                min_start_date = current_date + timedelta(days=30)
+                
+                if start_date < min_start_date:
+                    errors.append(f"Application start date ({start_date_str}) must be at least 30 days from current date ({min_start_date.strftime('%Y-%m-%d')})")
+        except (ValueError, TypeError):
+            if excel_data.get('application_start_date'):
+                errors.append(f"Invalid application start date format. Expected YYYY-MM-DD, got: {excel_data.get('application_start_date')}")
+        
+        # Rule 3: CGPA validation (minimum 6.32)
+        try:
+            cgpa = float(excel_data.get('cgpa', 0))
+            if cgpa < 6.32:
+                errors.append(f"CGPA ({cgpa}) must be at least 6.32 on a scale of 10")
+        except (ValueError, TypeError):
+            if excel_data.get('cgpa'):
+                errors.append(f"Invalid CGPA format. Expected numeric value, got: {excel_data.get('cgpa')}")
+        
+        # Rule 4: 10th and 12th marks validation (minimum 60%)
+        try:
+            tenth_marks = float(excel_data.get('tenth_mark_percentage', 0))
+            if tenth_marks < 60.0:
+                errors.append(f"10th mark percentage ({tenth_marks}%) must be at least 60%")
+        except (ValueError, TypeError):
+            if excel_data.get('tenth_mark_percentage'):
+                errors.append(f"Invalid 10th mark percentage format. Expected numeric value, got: {excel_data.get('tenth_mark_percentage')}")
+        
+        try:
+            twelfth_marks = float(excel_data.get('twelfth_mark_percentage', 0))
+            if twelfth_marks < 60.0:
+                errors.append(f"12th mark percentage ({twelfth_marks}%) must be at least 60%")
+        except (ValueError, TypeError):
+            if excel_data.get('twelfth_mark_percentage'):
+                errors.append(f"Invalid 12th mark percentage format. Expected numeric value, got: {excel_data.get('twelfth_mark_percentage')}")
+        
+        # Additional validations
+        # Email format validation
+        email = excel_data.get('email_id', '')
+        if email and not re.match(r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$', email):
+            errors.append(f"Invalid email format: {email}")
+        
+        # Phone number validation
+        phone = excel_data.get('phone_number', '')
+        if phone:
+            cleaned_phone = str(phone).replace('+', '').replace('-', '').replace(' ', '').replace('(', '').replace(')', '')
+            if not re.match(r'^\d{10,15}$', cleaned_phone):
+                warnings.append(f"Phone number format may be invalid: {phone}")
+        
+        return {
+            'all_valid': len(errors) == 0,
+            'errors': errors,
+            'warnings': warnings,
+            'total_errors': len(errors),
+            'total_warnings': len(warnings)
+        }
+
+    # Usage Examples:
+    """
+    # Example 1: Validate Excel file directly
+    result = validate_excel_file("path/to/application.xlsx")
+    if result['success']:
+        print("Validation passed!")
+        print("Extracted data:", result['extracted_data'])
+    else:
+        print("Validation failed!")
+        print("Errors:", result['validation_result']['errors'])
+    """
+    
+    # ===================
+    # File Name Validation
+    # ===================
+    def validate_pdf_attachments(self,file_list: List[str]) -> Dict[str, Union[bool, List[str]]]:
+        """
+        Validates PDF attachments according to specific naming requirements.
+        
+        Requirements:
+        - Exactly 5 PDF files
+        - 1 file ending with _CV.pdf
+        - 1 file ending with _X.pdf
+        - 1 file ending with _XII.pdf
+        - 1 file ending with _undergrad.pdf
+        - 1 additional PDF file that doesn't match the above patterns
+        
+        Args:
+            file_list: List of filenames to validate
+            
+        Returns:
+            Dict containing:
+            - isValid: Boolean indicating if validation passed
+            - issues: List of failure reasons
+            - file_list: Original file list
+        """
+        result = {
+            "isValid": False,
+            "issues": [],
+            "file_list": file_list or []
+        }
+        
+        # Check if file_list exists and is a list
+        if not isinstance(file_list, list):
+            result["issues"].append("File list must be a list")
+            return result
+        
+        # Check if exactly 5 files
+        if len(file_list) != 5:
+            result["issues"].append(f"Expected exactly 5 files, but received {len(file_list)} files")
+            return result
+        
+        # Check if all files are PDFs
+        non_pdf_files = [file for file in file_list if not file.lower().endswith('.pdf')]
+        if non_pdf_files:
+            result["issues"].append(f"Non-PDF files found: {', '.join(non_pdf_files)}")
+        
+        # Define required patterns
+        required_patterns = [
+            {"pattern": re.compile(r"_CV\.pdf$", re.IGNORECASE), "name": "CV document", "found": False},
+            {"pattern": re.compile(r"_X\.pdf$", re.IGNORECASE), "name": "X document", "found": False},
+            {"pattern": re.compile(r"_XII\.pdf$", re.IGNORECASE), "name": "XII document", "found": False},
+            {"pattern": re.compile(r"_undergrad\.pdf$", re.IGNORECASE), "name": "undergrad document", "found": False}
+        ]
+        
+        matched_files = set()
+        
+        # Check for required patterns
+        for file in file_list:
+            for requirement in required_patterns:
+                if requirement["pattern"].search(file) and not requirement["found"]:
+                    requirement["found"] = True
+                    matched_files.add(file)
+                    break
+        
+        # Check for missing required documents
+        missing_docs = [req["name"] for req in required_patterns if not req["found"]]
+        if missing_docs:
+            result["issues"].append(f"Missing required documents: {', '.join(missing_docs)}")
+        
+        # Check for duplicate pattern matches
+        duplicate_matches = []
+        for file in file_list:
+            match_count = sum(1 for req in required_patterns if req["pattern"].search(file))
+            if match_count > 1:
+                duplicate_matches.append(file)
+        
+        if duplicate_matches:
+            result["issues"].append(f"Files matching multiple patterns: {', '.join(duplicate_matches)}")
+        
+        # Check if the 5th file is a valid PDF that doesn't match the first 4 patterns
+        unmatched_files = [file for file in file_list if file not in matched_files]
+        
+        if len(unmatched_files) == 0 and len(file_list) == 5:
+            result["issues"].append("All files match the first 4 patterns - need exactly one additional PDF file")
+        elif len(unmatched_files) > 1:
+            result["issues"].append(f"Too many unmatched files ({len(unmatched_files)}). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns")
+        elif len(unmatched_files) == 1:
+            fifth_file = unmatched_files[0]
+            if not fifth_file.lower().endswith('.pdf'):
+                result["issues"].append(f'Fifth file "{fifth_file}" must be a PDF')
+        
+        # If no issues found, validation passes
+        if not result["issues"]:
+            result["isValid"] = True
+        
+        return result
+    
+    
+    def categorize_attachments(self,attachments):
+        """
+        Simple categorization of 5 files:
+        - 1 Resume (_CV.pdf)
+        - 1 Class 10 (_X.pdf)
+        - 1 Class 12 (_XII.pdf)
+        - 1 College (_undergrad.pdf)
+        - 1 LOR (exact name match)
+        """
+        categories = {
+            'resume': None,        # Ends with _CV.pdf
+            'class_10': None,      # Ends with _X.pdf
+            'class_12': None,     # Ends with _XII.pdf
+            'college': None,       # Ends with _undergrad.pdf
+            'lor': None            # Exact name 'letter_of_recommendation.pdf'
+        }
+        
+        for attachment in attachments:
+            name = attachment['filename']
+            path = attachment['path']
+            
+            if name.endswith('_CV.pdf') or name.endswith('_cv.pdf') or name.endswith('_Cv.pdf'):
+                categories['resume'] = path
+            elif name.endswith('_X.pdf'):
+                categories['class_10'] = path
+            elif name.endswith('_XII.pdf'):
+                categories['class_12'] = path
+            elif name.endswith('_undergrad.pdf'):
+                categories['college'] = path
+            else:
+                categories['lor'] = path
+        
+        return categories
+        
+        

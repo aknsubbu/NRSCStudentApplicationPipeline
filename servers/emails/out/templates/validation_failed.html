@@ -465,11 +465,8 @@
 
           {% for issue in issues %}
           <div class="issue-item">
-            <div class="issue-header">
-              {{ issue.document_type | default('Document') }}
-            </div>
             <div class="issue-description">
-              {{ issue.problem | default('This document requires attention.') }}
+              {{ issue | default('This document requires attention.') }}
             </div>
             {% if issue.suggestion %}
             <div class="issue-suggestion">{{ issue.suggestion }}</div>
