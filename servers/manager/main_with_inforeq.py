@@ -98,6 +98,9 @@ class InformationRequiredManager:
                 student_id=information_required['student_id']
                 application_id=information_required['application_id']
                 student_name=information_required['sender_name']
+                #upload the excel file to the MinIO bucket
+                client.upload_file(student_id=student_id,object_name=f"excel_attachment.xlsx",file_path=information_required['attachments'][0]['path'])
+                logging.info(f"Excel file uploaded to MinIO bucket for student {student_id}")
                 #validate the excel file
                 logging.info(f"Validating excel file for student {student_id}")
                 validation_data=validate_nrsc_excel_file(file_path=information_required['attachments'][0]['path'])
