@@ -584,9 +584,13 @@ class StudentApplicationPipelineClient:
         return response.json()
 
     def get_information_required_emails(self)->Dict[str,Any]:
-        url:f"{self.email_polling_url}/information-required"
+        url=f"{self.email_polling_url}/application-emails"
         response=requests.get(url)
-        return response.json
+        info_required_emails=[]
+        for email in response.json()['emails']:
+            if email['is_info_required']:
+                info_required_emails.append(email)
+        return info_required_emails
  
     def test_email_connection(self) -> Dict[str, Any]:
         """Test email server connection."""
