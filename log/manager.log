@@ -243,3 +243,39 @@
 2025-06-24 14:49:30,604 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
 2025-06-24 14:49:34,609 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
 2025-06-24 14:49:34,614 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:35,714 - INFO - Logging initialized successfully
+2025-06-24 14:52:35,715 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:52:35,715 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:52:35,715 - INFO - Fetching applications
+2025-06-24 14:52:46,225 - INFO - Found 1 applications
+2025-06-24 14:52:46,225 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:52:46,225 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,241 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,241 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,241 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,246 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,328 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,328 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,328 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:22,971 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:22,971 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:26,266 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:26,271 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:33,492 - INFO - Logging initialized successfully
+2025-06-24 15:09:33,492 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 15:09:33,492 - INFO - Application Pipeline Manager Initialized
+2025-06-24 15:09:33,492 - INFO - Fetching applications
+2025-06-24 15:09:44,857 - INFO - Found 1 applications
+2025-06-24 15:09:44,857 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 15:09:44,857 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,864 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,864 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,864 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,869 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,952 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,952 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,952 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:22,149 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:22,150 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:25,795 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:25,800 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a

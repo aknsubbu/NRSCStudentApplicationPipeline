@@ -1,7 +1,7 @@
-from fastapi import FastAPI, Depends, HTTPException, Security, status
+from fastapi import FastAPI, Depends, HTTPException, Security, status, UploadFile, Form, File
 from fastapi.security import APIKeyHeader
-from utils.models import EmailRequest, TemplateEmailRequest, TemplateEmailRecieved
-from utils.email_client import send_email, render_template
+from utils.models import EmailRequest, TemplateEmailRequest, TemplateEmailRecieved, TemplateEmailInformationRequired
+from utils.email_client import send_email, render_template,send_email_with_attachments
 import httpx
 import os
 from dotenv import load_dotenv
@@ -9,6 +9,7 @@ import logging
 from typing import List, Optional
 from pathlib import Path
 from datetime import datetime, timedelta
+import tempfile
 
 
 load_dotenv(dotenv_path=Path(__file__).parent.parent.parent / '.env')
@@ -145,37 +146,85 @@ async def send_template_email_application_validated(request: TemplateEmailReciev
         logger.error(f"Error sending template email: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
     
-@app.post("/email/template/information_required", response_model=dict, dependencies=[Depends(get_api_key)])
-async def send_template_email_information_required(request: TemplateEmailRecieved):
-    """Send an email using a predefined template with optional MinIO presigned URL."""
-    try: 
-        # Use default subject if none provided
-        subject = request.subject or 'Information Required by NRSC Training and Outreach Team'
+# @app.post("/email/template/information_required", response_model=dict, dependencies=[Depends(get_api_key)])
+# async def send_template_email_information_required(request: TemplateEmailRecieved):
+#     """Send an email using a predefined template with optional MinIO presigned URL."""
+#     try: 
+#         # Use default subject if none provided
+#         subject = request.subject or 'Information Required by NRSC Training and Outreach Team'
         
-        # Render template
+#         # Render template
+#         body = render_template(
+#             template_name='information_required.html',
+#             subject=subject,
+#             student_name=request.student_name,
+#             student_id=request.student_id,
+#             deadline_date=(datetime.now() + timedelta(days=7)).strftime('%d/%m/%Y')
+#             )
+
+#         # Send email
+#         result = send_email(
+#             recipient=request.recipient,
+#             subject=subject,
+#             body=body,
+#             is_html=True,
+#         )
+        
+#         logger.info(f"Template email sent successfully to {request.recipient}")
+#         return result
+        
+#     except Exception as e:
+#         logger.error(f"Error sending template email: {str(e)}")
+#         raise HTTPException(status_code=500, detail=str(e))
+    
+
+@app.post("/email/template/information_required", response_model=dict, dependencies=[Depends(get_api_key)])
+async def send_template_email_information_required(
+    request: TemplateEmailInformationRequired
+):
+    """Send email with direct file attachments (no temp files needed)."""
+    try: 
+        subject = 'Information Required by NRSC Training and Outreach Team'
+        
         body = render_template(
             template_name='information_required.html',
             subject=subject,
             student_name=request.student_name,
             student_id=request.student_id,
             deadline_date=(datetime.now() + timedelta(days=7)).strftime('%d/%m/%Y')
-            )
+        )
 
-        # Send email
-        result = send_email(
+        # Direct file attachments (no temp files needed)
+        attachment_paths = [
+            {
+                'path': 'servers/emails/out/templates/assets/NRSC_StudentInfo.xlsx',
+                'filename': 'NRSC_StudentInfo.xlsx'
+            }
+        ]
+        
+        # Verify files exist before sending
+        valid_attachments = []
+        for attachment in attachment_paths:
+            if os.path.exists(attachment['path']):
+                valid_attachments.append(attachment)
+            else:
+                logger.warning(f"Attachment file not found: {attachment['path']}")
+
+        # Send email with attachments
+        result = send_email_with_attachments(
             recipient=request.recipient,
             subject=subject,
             body=body,
             is_html=True,
+            attachments=valid_attachments
         )
         
-        logger.info(f"Template email sent successfully to {request.recipient}")
+        logger.info(f"Template email sent successfully to {request.recipient} with {len(valid_attachments)} attachments")
         return result
         
     except Exception as e:
         logger.error(f"Error sending template email: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
-    
 
 
 @app.post("/email/template/validation_failed", response_model=dict, dependencies=[Depends(get_api_key)])
