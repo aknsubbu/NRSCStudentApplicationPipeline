@@ -7,8 +7,10 @@ import asyncio
 from dotenv import load_dotenv
 import logging
 from jinja2 import Environment, FileSystemLoader
-from typing import List, Optional
+from typing import List, Optional, Dict
 from .retry import retry
+from email.mime.base import MIMEBase
+from email import encoders
 
 load_dotenv()
 
@@ -149,6 +151,86 @@ def send_email(recipient: str, subject: str, body: str, is_html: bool = False,
         error_msg = f"Failed to send email to {recipient}: {str(e)}"
         logger.error(error_msg)
         raise Exception(error_msg)
+
+@retry(max_attempts=3, delay_seconds=2)
+def send_email_with_attachments(
+    recipient: str,
+    subject: str,
+    body: str,
+    is_html: bool = False,
+    attachments: Optional[List[Dict[str, str]]] = None
+) -> dict:
+    """
+    Send email with optional attachments.
+    
+    Args:
+        recipient: Email recipient
+        subject: Email subject
+        body: Email body content
+        is_html: Whether body is HTML
+        attachments: List of dicts with 'path' and 'filename' keys
+    
+    Returns:
+        dict: Response with success status
+    """
+    try:
+        # Create message container
+        msg = MIMEMultipart()
+        msg['From'] = os.getenv("EMAIL_SENDER")  # Your SMTP username
+        msg['To'] = recipient
+        msg['Subject'] = subject
+
+        # Add body to email
+        if is_html:
+            msg.attach(MIMEText(body, 'html'))
+        else:
+            msg.attach(MIMEText(body, 'plain'))
+
+        # Add attachments if provided
+        if attachments:
+            for attachment_info in attachments:
+                file_path = attachment_info['path']
+                filename = attachment_info['filename']
+                
+                if os.path.exists(file_path):
+                    with open(file_path, "rb") as attachment_file:
+                        # Create MIMEBase object
+                        part = MIMEBase('application', 'octet-stream')
+                        part.set_payload(attachment_file.read())
+                    
+                    # Encode file in ASCII characters to send by email
+                    encoders.encode_base64(part)
+                    
+                    # Add header as key/value pair to attachment part
+                    part.add_header(
+                        'Content-Disposition',
+                        f'attachment; filename= {filename}'
+                    )
+                    
+                    # Attach the part to message
+                    msg.attach(part)
+                else:
+                    logger.warning(f"Attachment file not found: {file_path}")
+
+        # Create SMTP session
+        server = smtplib.SMTP(os.getenv("SMTP_HOST"), os.getenv("SMTP_PORT"))
+        server.starttls()  # Enable TLS encryption
+        server.login(os.getenv("EMAIL_SENDER"), os.getenv("EMAIL_PASSWORD_IN"))
+        
+        # Send email
+        text = msg.as_string()
+        server.sendmail(os.getenv("EMAIL_SENDER"), recipient, text)
+        server.quit()
+        
+        return {
+            "success": True,
+            "message": f"Email sent successfully to {recipient}",
+            "attachments_count": len(attachments) if attachments else 0
+        }
+        
+    except Exception as e:
+        logger.error(f"Failed to send email: {str(e)}")
+        raise Exception(f"Email sending failed: {str(e)}")
 
 @retry(max_attempts=3, delay_seconds=2)
 async def send_email_async(recipient: str, subject: str, body: str, is_html: bool = False, 

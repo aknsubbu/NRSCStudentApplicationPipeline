@@ -1,69 +1,66 @@
 {
   "total_emails": 1,
   "application_emails": 1,
+  "info_required_emails": 0,
   "processed_emails": 1,
   "moved_emails": 0,
   "emails": [
     {
       "id": "1",
-      "subject": "Fwd: Application for Internship during Summer of 2025",
-      "sender": "Anandkumar NS <aknsubbu@gmail.com>",
+      "student_id": "a10eca89e7fdedecb350f6f0e85c2f2a",
+      "application_id": "2025/richybe2022@gmail.com",
+      "subject": "Fwd: Application for Internship at ISRO - NRSC",
+      "sender": "richybe2022@gmail.com",
       "recipient": "bot.nrsc@gmail.com",
-      "date": "Fri, 20 Jun 2025 10:19:18 +0530",
-      "body_text": "Respected Sir/Madam,\r\n\r\nI would like to apply for the internship during the Summer of 2025 in the\r\nMay- June window at NRSC in ISRO. I am a curious and explorative computer\r\nscience student from PSG College of Technology. I would love to collaborate\r\nwith ISRO and the National Remote Sensing Center to be able to learn and\r\nbuild innovative products and services in collaboration with industry\r\nprofessionals. I believe this will be a very rare chance to learn to the\r\nfore-front of technology.\r\n\r\nI have experience working with Frontend, Backend and Full Stack Projects in\r\nthe Application development space and have worked on two different\r\nArtificial Intelligence projects that use open-source LLMs and AI Agentic\r\nworkflow. I have also worked with open source models and cloud services to\r\nbuild a text to video news converter which one “first prize” at the AI\r\nGoogleathon at SNS College of Engineering.\r\n\r\nI am also certified in Python, SQL, ExpressJS, JavaScript and Version\r\nControl System. I also have experience working with open source AI\r\nFrameworks such as LangChain and LlamaIndex.\r\n\r\nI am an executive at the GitHub Campus Club of PSG College of Technology\r\nand I handle frontend development and Applied AI Applications.\r\nMore details about my profile are enclosed within my resume.\r\n\r\nI would love to work at NRSC and ISRO and hope I will be given a chance to\r\ndo the same.\r\n\r\nRegards,\r\nAnandkumar NS\r\nPh: +91 9384870740\r\n\r\nRegards,\r\nAnandkumar NS\r\nPh: +91 9384870740",
-      "body_html": "<div><br></div><div><div class=\"gmail_quote gmail_quote_container\"><br><br><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div>Respected Sir/Madam,</div><div><br></div><div>I would like to apply for the internship during the Summer of 2025 in the May- June window at NRSC in ISRO. I am a curious and explorative computer science student from PSG College of Technology. I would love to collaborate with ISRO and the National Remote Sensing Center to be able to learn and build innovative products and services in collaboration with industry professionals. I believe this will be a very rare chance to learn to the fore-front of technology. </div><div><br></div><div>I have experience working with Frontend, Backend and Full Stack Projects in the Application development space and have worked on two different Artificial Intelligence projects that use open-source LLMs and AI Agentic workflow. I have also worked with open source models and cloud services to build a text to video news converter which one “first prize” at the AI Googleathon at SNS College of Engineering.</div><div><br></div><div>I am also certified in Python, SQL, ExpressJS, JavaScript and Version Control System. I also have experience working with open source AI Frameworks such as LangChain and LlamaIndex.</div><div><br></div><div>I am an executive at the GitHub Campus Club of PSG College of Technology and I handle frontend development and Applied AI Applications.</div><div>More details about my profile are enclosed within my resume.</div><div dir=\"auto\" style=\"line-break:after-white-space\"><br></div>I would love to work at NRSC and ISRO and hope I will be given a chance to do the same.</div><div dir=\"auto\" style=\"line-break:after-white-space\"><br><div>\r\n<div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div>Regards,<br>Anandkumar NS<br>Ph: +91 9384870740</div><div><br></div><div></div></div></div></div></div></div></div><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div>\r\n<div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div>Regards,<br>Anandkumar NS<br>Ph: +91 9384870740<br><br><br></div><div><br></div></div><br><br>\r\n\r\n</div>\r\n</div></div></div></div><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div></div></div></div><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div></div></div></div><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div></div></div></div></div></div></div></div><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div style=\"line-break:after-white-space\"><div dir=\"auto\" style=\"line-break:after-white-space\"><div><div dir=\"auto\" style=\"letter-spacing:normal;text-align:start;text-indent:0px;text-transform:none;white-space:normal;word-spacing:0px;text-decoration:none;line-break:after-white-space;color:rgb(0,0,0)\"><div><br><br><br></div><div><br></div></div></div></div></div></div></div></div></div>\r\n",
+      "date": "Tue, 24 Jun 2025 14:43:37 +0530",
+      "body_text": "I hope this message finds you well. My name is Richard Samuel D, a\r\nthird-year B.E student specializing in Computer Science and Engineering\r\nwith specialisation in Artificial Intelligence and Machine Learning at PSG\r\nCollege of Technology, Coimbatore.\r\n\r\nI am writing to express my keen interest in the internship opportunity\r\nlisted on the NRSC website. My academic background and projects, including\r\nwork on image processing, predictive analytics, and machine learning\r\napplications, align well with the scope of the internship.\r\n\r\nI am eager to contribute my skills in AI, Machine Learning and Software\r\nDevelopment while gaining practical exposure to cutting-edge technologies\r\nand research at ISRO. I would be grateful for the opportunity to learn from\r\nesteemed experts in this field and contribute to ongoing projects at NRSC.\r\n\r\nI have attached my CV, Letter of Recommendation, Grade 10 and 12 mark\r\nsheets and my College grade sheets for the past 3 semesters of my course\r\nfor your consideration. I would be delighted to discuss how I can\r\ncontribute to NRSC’s ongoing initiatives. Thank you for considering my\r\napplication. I look forward to the possibility of contributing to your\r\nesteemed organization.\r\n\r\n*Sincerely,*\r\nRichard Samuel D\r\nB.E (CSE - AI & ML)\r\nPSG College of Technology, Coimbatore\r\nrichybe2022@gmail.com\r\n+91 9384559645",
+      "body_html": "<div dir=\"ltr\"><div class=\"gmail_quote gmail_quote_container\"><div dir=\"ltr\" class=\"gmail_attr\">I hope this message finds you well. My name is Richard Samuel D, a third-year B.E student specializing in Computer Science and Engineering with specialisation in Artificial Intelligence and Machine Learning at PSG College of Technology, Coimbatore.  </div><div dir=\"ltr\"><div class=\"gmail_quote\"><div dir=\"ltr\"><div class=\"gmail_quote\"><div dir=\"ltr\"><div><br></div><div>I am writing to express my keen interest in the internship opportunity listed on the NRSC website. My academic background and projects, including work on image processing, predictive analytics, and machine learning applications, align well with the scope of the internship.<br></div><div><br></div><div>I am eager to contribute my skills in AI, Machine Learning and Software Development while gaining practical exposure to cutting-edge technologies and research at ISRO. I would be grateful for the opportunity to learn from esteemed experts in this field and contribute to ongoing projects at NRSC.  <br></div><div><br></div><div>I have attached my CV, Letter of Recommendation, Grade 10 and 12 mark sheets and my College grade sheets for the past 3 semesters of my course for your consideration. I would be delighted to discuss how I can contribute to NRSC’s ongoing initiatives. Thank you for considering my application. I look forward to the possibility of contributing to your esteemed organization.  <br></div><div><br></div><div><strong>Sincerely,</strong><br>Richard Samuel D<br>B.E (CSE - AI &amp; ML)<br>PSG College of Technology, Coimbatore<br><a href=\"mailto:richybe2022@gmail.com\" target=\"_blank\">richybe2022@gmail.com</a><br>+91 9384559645</div></div>\r\n</div></div>\r\n</div></div>\r\n</div></div>\r\n",
       "is_application": true,
-      "keywords_found": [
-        "application",
-        "apply"
-      ],
+      "is_info_required": false,
+      "app_keywords_found": ["application"],
+      "info_required_keywords_found": [],
       "attachments": [
         {
-          "filename": "PSGTECH_AnandkumarNS_ComputerScienceandEngineering.pdf",
+          "filename": "RichardSamuel_Cv.pdf",
           "content_type": "application/pdf",
-          "path": "attachments/1/PSGTECH_AnandkumarNS_ComputerScienceandEngineering.pdf",
-          "size": 6613259,
-          "content_base64":"",
-          "file_hash": "67062690a2ad8b4147d6ddc2b71b5ca6"
+          "path": "attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_Cv.pdf",
+          "size": 159489,
+          "file_hash": "3104126d3483b212fb56de3c010cbff4"
         },
         {
-          "filename": "AnandkumarNS_CV_1.pdf",
+          "filename": "PSGCT_RichardSamuel_CSE(AI&ML).pdf",
           "content_type": "application/pdf",
-          "path": "attachments/1/AnandkumarNS_CV_1.pdf",
-          "size": 57386,
-          "content_base64":"",
-          "file_hash": "c0cdb66dcc66e2d1311b4d4f44fa81b0"
+          "path": "attachments/a10eca89e7fdedecb350f6f0e85c2f2a/PSGCT_RichardSamuel_CSE(AI&ML).pdf",
+          "size": 906923,
+          "file_hash": "3ed1b9c96bf77af7a864014f075f97a6"
         },
         {
-          "filename": "AnandkumarNS_undergrad_1.pdf",
+          "filename": "RichardSamuel_X.pdf",
           "content_type": "application/pdf",
-          "path": "attachments/1/AnandkumarNS_undergrad_1.pdf",
-          "size": 1945432,
-"content_base64":"",
-          "file_hash": "f83c3dc3b87575033d1402259ac59ba1"
+          "path": "attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_X.pdf",
+          "size": 677838,
+          "file_hash": "32c5403c32b43d340ce86c0271d6842c"
         },
         {
-          "filename": "AnandkumarNS_X_1.pdf",
+          "filename": "RichardSamuel_XII.pdf",
           "content_type": "application/pdf",
-          "path": "attachments/1/AnandkumarNS_X_1.pdf",
-          "size": 632703,
-"content_base64":"",
-          "file_hash": "595c193cac39d4a12a56b4d2cd78bd80"
+          "path": "attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_XII.pdf",
+          "size": 920727,
+          "file_hash": "e7bffa4ccb915dc5653f517e93754123"
         },
         {
-          "filename": "AnandkumarNS_XII_1.pdf",
+          "filename": "RichardSamuel_undergrad.pdf",
           "content_type": "application/pdf",
-          "path": "attachments/1/AnandkumarNS_XII_1.pdf",
-          "size": 692266,
-"content_base64":"",
-          "file_hash": "09e6c9d95b76335e0d8cfe6d9330e94f"
+          "path": "attachments/a10eca89e7fdedecb350f6f0e85c2f2a/RichardSamuel_undergrad.pdf",
+          "size": 1404022,
+          "file_hash": "b89de5e32c5747edbd1c906aefa2e1b3"
         }
       ],
       "raw_email_base64": null,
-      "processed_timestamp": "2025-06-20T10:20:23.156892",
-      "email_hash": "8be11e861d12c0ffbb3df7c4d13f26d0"
+      "processed_timestamp": "2025-06-25T09:56:24.646753",
+      "email_hash": "28b18282300a9c51cc79e0b1e26f0f1e"
     }
   ],
-  "processing_time": 3.76,
+  "processing_time": 5.99,
   "errors": []
 }

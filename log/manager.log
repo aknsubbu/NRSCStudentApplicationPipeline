@@ -214,3 +214,141 @@
 2025-06-24 14:36:42,200 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
 2025-06-24 14:37:25,279 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
 2025-06-24 14:37:25,280 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:16,344 - INFO - Logging initialized successfully
+2025-06-24 14:46:16,344 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:46:16,344 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:46:16,344 - INFO - Fetching applications
+2025-06-24 14:46:25,696 - INFO - Found 1 applications
+2025-06-24 14:46:25,696 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:46:25,696 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,711 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,711 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,712 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:46:25,712 - INFO - Invalid attachments: ['Missing required documents: CV document, X document, XII document, undergrad document', "Too many unmatched files (5). Expected exactly 1 additional PDF file that doesn't match the first 4 patterns"]
+2025-06-24 14:48:28,237 - INFO - Logging initialized successfully
+2025-06-24 14:48:28,237 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:48:28,237 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:48:28,237 - INFO - Fetching applications
+2025-06-24 14:48:38,943 - INFO - Found 1 applications
+2025-06-24 14:48:38,943 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:48:38,943 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,955 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,956 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,956 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:38,959 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:39,077 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:39,078 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:48:39,078 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:30,603 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:30,604 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:34,609 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:49:34,614 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:35,714 - INFO - Logging initialized successfully
+2025-06-24 14:52:35,715 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 14:52:35,715 - INFO - Application Pipeline Manager Initialized
+2025-06-24 14:52:35,715 - INFO - Fetching applications
+2025-06-24 14:52:46,225 - INFO - Found 1 applications
+2025-06-24 14:52:46,225 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 14:52:46,225 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,241 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,241 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,241 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,246 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,328 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,328 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:52:46,328 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:22,971 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:22,971 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:26,266 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 14:53:26,271 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:33,492 - INFO - Logging initialized successfully
+2025-06-24 15:09:33,492 - INFO - Application Pipeline Manager Booted Up
+2025-06-24 15:09:33,492 - INFO - Application Pipeline Manager Initialized
+2025-06-24 15:09:33,492 - INFO - Fetching applications
+2025-06-24 15:09:44,857 - INFO - Found 1 applications
+2025-06-24 15:09:44,857 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-24 15:09:44,857 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,864 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,864 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,864 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,869 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,952 - INFO - Categorizing attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,952 - INFO - Attachments categorized for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:09:44,952 - INFO - Validating attachments for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:22,149 - INFO - Attachments validated for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:22,150 - INFO - Attachments are invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:25,795 - INFO - Moving files to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-24 15:10:25,800 - INFO - Files moved to archive subfolder within the attachements folder for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:25:00,545 - INFO - Logging initialized successfully
+2025-06-26 10:25:00,545 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:25:00,545 - INFO - Application Pipeline Manager Initialized
+2025-06-26 10:25:00,545 - INFO - Fetching applications
+2025-06-26 10:26:45,109 - INFO - Logging initialized successfully
+2025-06-26 10:26:45,109 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:26:45,109 - INFO - Application Pipeline Manager Initialized
+2025-06-26 10:26:45,109 - INFO - Fetching applications
+2025-06-26 10:26:50,326 - INFO - Found 1 applications
+2025-06-26 10:26:50,327 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-26 10:26:50,327 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:26:50,344 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:26:50,350 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:26:50,452 - INFO - Email body and attachments uploaded to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:27:11,904 - INFO - Logging initialized successfully
+2025-06-26 10:27:11,904 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:27:11,905 - INFO - Application Pipeline Manager Initialized
+2025-06-26 10:27:11,905 - INFO - Fetching applications
+2025-06-26 10:27:16,491 - INFO - Found 1 applications
+2025-06-26 10:27:16,491 - INFO - Creating student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-26 10:27:16,491 - INFO - Creating application 2025/richybe2022@gmail.com for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:27:16,501 - INFO - Checking attachment names for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:27:16,506 - INFO - Uploading email body and attachments to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:27:16,601 - INFO - Email body and attachments uploaded to MinIO bucket for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:32:53,001 - INFO - Logging initialized successfully
+2025-06-26 10:32:53,001 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:32:53,001 - INFO - Information Required Manager Initialized
+2025-06-26 10:32:53,001 - INFO - Fetching information required emails
+2025-06-26 10:34:18,623 - INFO - Logging initialized successfully
+2025-06-26 10:34:18,623 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:34:18,623 - INFO - Information Required Manager Initialized
+2025-06-26 10:34:18,623 - INFO - Fetching information required emails
+2025-06-26 10:35:34,904 - INFO - Logging initialized successfully
+2025-06-26 10:35:34,904 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:35:34,904 - INFO - Information Required Manager Initialized
+2025-06-26 10:35:34,904 - INFO - Fetching information required emails
+2025-06-26 10:36:20,091 - INFO - Logging initialized successfully
+2025-06-26 10:36:20,091 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:36:20,091 - INFO - Information Required Manager Initialized
+2025-06-26 10:36:20,091 - INFO - Fetching information required emails
+2025-06-26 10:36:32,216 - INFO - Logging initialized successfully
+2025-06-26 10:36:32,216 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:36:32,216 - INFO - Information Required Manager Initialized
+2025-06-26 10:36:32,216 - INFO - Fetching information required emails
+2025-06-26 10:37:05,614 - INFO - Logging initialized successfully
+2025-06-26 10:37:05,614 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:37:05,614 - INFO - Information Required Manager Initialized
+2025-06-26 10:37:05,615 - INFO - Fetching information required emails
+2025-06-26 10:37:21,720 - INFO - Logging initialized successfully
+2025-06-26 10:37:21,720 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:37:21,720 - INFO - Information Required Manager Initialized
+2025-06-26 10:37:21,720 - INFO - Fetching information required emails
+2025-06-26 10:46:41,723 - INFO - Logging initialized successfully
+2025-06-26 10:46:41,724 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:46:41,724 - INFO - Information Required Manager Initialized
+2025-06-26 10:46:41,724 - INFO - Fetching information required emails
+2025-06-26 10:47:04,548 - INFO - Logging initialized successfully
+2025-06-26 10:47:04,548 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:47:04,548 - INFO - Information Required Manager Initialized
+2025-06-26 10:47:04,548 - INFO - Fetching information required emails
+2025-06-26 10:47:09,398 - INFO - Processing information required email for student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-26 10:47:09,398 - INFO - Validating excel file for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:47:09,400 - ERROR - Failed to extract data from Excel file attachments/a10eca89e7fdedecb350f6f0e85c2f2a/NRSC_StudentInfo_1.xlsx: Failed to read Excel file: Missing optional dependency 'openpyxl'.  Use pip or conda to install openpyxl.
+2025-06-26 10:47:09,400 - ERROR - Error validating Excel file attachments/a10eca89e7fdedecb350f6f0e85c2f2a/NRSC_StudentInfo_1.xlsx: Failed to extract data from Excel file: Failed to read Excel file: Missing optional dependency 'openpyxl'.  Use pip or conda to install openpyxl.
+2025-06-26 10:47:09,401 - INFO - Excel file is invalid for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:47:09,401 - INFO - Sending validation failed email to richybe2022@gmail.com
+2025-06-26 10:47:51,262 - INFO - Logging initialized successfully
+2025-06-26 10:47:51,262 - INFO - Application Pipeline Manager Booted Up
+2025-06-26 10:47:51,262 - INFO - Information Required Manager Initialized
+2025-06-26 10:47:51,262 - INFO - Fetching information required emails
+2025-06-26 10:47:55,824 - INFO - Processing information required email for student a10eca89e7fdedecb350f6f0e85c2f2a for application 2025/richybe2022@gmail.com
+2025-06-26 10:47:55,824 - INFO - Validating excel file for student a10eca89e7fdedecb350f6f0e85c2f2a
+2025-06-26 10:47:55,952 - INFO - Attachments are valid for student a10eca89e7fdedecb350f6f0e85c2f2a

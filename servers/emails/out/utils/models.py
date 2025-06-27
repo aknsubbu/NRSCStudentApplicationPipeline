@@ -32,6 +32,5 @@ class TemplateEmailRecieved(BaseModel):
     
 class TemplateEmailInformationRequired(BaseModel):
     recipient: EmailStr
-    subject: Optional[str] = None
+    student_name: Optional[str] = None
     student_id: Optional[str] = None
-    deadline_date: Optional[str] = None

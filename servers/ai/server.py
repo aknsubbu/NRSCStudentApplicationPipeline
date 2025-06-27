@@ -481,9 +481,9 @@ def validate_lor(text: str = None, images: list = None) -> dict:
                 issues.append("Start date not mentioned in LOR")
                 date_validation_valid = False
         
-        # Check basic LOR requirements
-        if not basic_valid:
-            issues.append("LOR does not meet basic requirements (letterhead, authority signature, proper format)")
+        # # Check basic LOR requirements
+        # if not basic_valid:
+        #     issues.append("LOR does not meet basic requirements (letterhead, authority signature, proper format)")
         
         # Overall validation
         overall_valid = basic_valid and dates_mentioned and date_validation_valid
