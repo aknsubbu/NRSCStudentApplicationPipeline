@@ -760,9 +760,9 @@ class StudentApplicationPipelineClient:
             return result
         
         # Check if exactly 5 files
-        if len(file_list) != 5:
-            result["issues"].append(f"Expected exactly 5 files, but received {len(file_list)} files")
-            return result
+        # if len(file_list) != 5:
+        #     result["issues"].append(f"Expected exactly 5 files, but received {len(file_list)} files")
+        #     return result
         
         # Check if all files are PDFs
         non_pdf_files = [file for file in file_list if not file.lower().endswith('.pdf')]
@@ -774,7 +774,8 @@ class StudentApplicationPipelineClient:
             {"pattern": re.compile(r"_CV\.pdf$", re.IGNORECASE), "name": "CV document", "found": False},
             {"pattern": re.compile(r"_X\.pdf$", re.IGNORECASE), "name": "X document", "found": False},
             {"pattern": re.compile(r"_XII\.pdf$", re.IGNORECASE), "name": "XII document", "found": False},
-            {"pattern": re.compile(r"_undergrad\.pdf$", re.IGNORECASE), "name": "undergrad document", "found": False}
+            {"pattern": re.compile(r"_undergrad\.pdf$", re.IGNORECASE), "name": "undergrad document", "found": False},
+            {"pattern": re.compile(r"_LOR\.pdf$", re.IGNORECASE), "name": "LOR document", "found": False}
         ]
         
         matched_files = set()
