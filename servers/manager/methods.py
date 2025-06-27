@@ -850,7 +850,7 @@ class StudentApplicationPipelineClient:
                 categories['class_12'] = path
             elif name.endswith('_undergrad.pdf'):
                 categories['college'] = path
-            else:
+            elif name.endswith('_LOR.pdf'):
                 categories['lor'] = path
         
         return categories
