@@ -63,6 +63,28 @@ class ApplicationPipelineManager:
                 client.create_application(application_id=application_id,student_id=student_id,application_status='received',intern_project='',intern_project_start_date='',intern_project_end_date='')
                 logging.info(f"Checking attachment names for student {student_id}")
                 file_list=[]
+                logging.info(f"Validating attachments for student {student_id}")
+                filename_validity=client.validate_pdf_attachments(file_list=file_list)
+                if not filename_validity['isValid']:
+                    logging.info(f"Attachments are invalid for student {student_id}")
+                    logging.info(f"Invalid attachments: {filename_validity['issues']}")
+                    template_data = {
+                        "student_name": '',
+                        "message": "Your PDF document submission has validation issues that need to be corrected:",
+                        "issues": filename_validity["issues"]
+                    }
+                    response = client.send_validation_failed_email(
+                        recipient=application['sender'],
+                        subject=f"Document Validation Failed - Action Required ({student_id})",
+                        student_id=student_id,
+                        object_name="pdf_attachment_validation",  # or whatever object name you use
+                        expires=36000,  # 1 hour expiry, adjust as needed
+                        template_data=template_data,
+                        file_list=filename_validity["file_list"]
+                    )
+                    continue
+                
+                
                 for attachment in application['attachments']:
                     file_list.append(attachment['filename'])
                     
