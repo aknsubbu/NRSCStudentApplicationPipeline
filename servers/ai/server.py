@@ -294,9 +294,9 @@ def validate_resume_with_marks(text: str = None, images: list = None) -> dict:
             },
         }
     except Exception as e:
+        logger.error(f"Error extracting skills and course info: {str(e)}")
         return {
-            "valid": False,
-            "feedback": f"Error validating resume: {str(e)}"
+            "error": f"Failed to extract skills information: {str(e)}"
         }
 
 def validate_cover_letter_with_marks(text: str = None, images: list = None) -> dict:
@@ -470,9 +470,12 @@ def validate_lor(text: str = None, images: list = None) -> dict:
                     start_month = start_date_parsed.month
                     start_year = start_date_parsed.year
                     
-                    # Check if start date is at least next month
-                    if start_year < current_year or (start_year == current_year and start_month <= current_month):
-                        issues.append(f"Internship start date ({normalized_start_date}) must be at least next month from application date. Current: {current_date.strftime('%B %Y')}")
+                    # Check if start date is at least 15 days from now
+                    min_start_date = current_date + timedelta(days=15)
+                    if start_date_parsed < min_start_date:
+                        issues.append(
+                            f"Internship start date ({normalized_start_date}) must be at least 15 days after application date ({current_date.strftime('%Y-%m-%d')})"
+                        )
                         date_validation_valid = False
                 else:
                     issues.append(f"Could not parse start date format: {normalized_start_date}")
